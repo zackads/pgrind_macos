@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1024"
+  height="1024"
+  viewBox="0 0 1024 1024"
+  role="img"
+  aria-label="P with subscript cog icon"
+>
+
+  <g fill="#111111">
+
+    <!-- Capital P (vector path, no fonts) -->
+    <path fill-rule="evenodd" d="
+      M240 190
+      H395
+      C520 190 610 265 610 360
+      C610 460 520 535 395 535
+      H395
+      V830
+      H240
+      Z
+
+      M395 290
+      V435
+      H410
+      C470 435 520 405 520 360
+      C520 320 470 290 410 290
+      Z
+    "/>
+
+    <!-- Subscript cog -->
+    <g transform="translate(720 700)">
+
+      <!-- Teeth -->
+      <g>
+        <rect x="-14" y="-132" width="28" height="44" rx="6"/>
+        <rect x="-14" y="-132" width="28" height="44" rx="6" transform="rotate(45)"/>
+        <rect x="-14" y="-132" width="28" height="44" rx="6" transform="rotate(90)"/>
+        <rect x="-14" y="-132" width="28" height="44" rx="6" transform="rotate(135)"/>
+        <rect x="-14" y="-132" width="28" height="44" rx="6" transform="rotate(180)"/>
+        <rect x="-14" y="-132" width="28" height="44" rx="6" transform="rotate(225)"/>
+        <rect x="-14" y="-132" width="28" height="44" rx="6" transform="rotate(270)"/>
+        <rect x="-14" y="-132" width="28" height="44" rx="6" transform="rotate(315)"/>
+      </g>
+
+      <!-- Outer ring -->
+      <path d="
+        M 95 0
+        A 95 95 0 1 0 -95 0
+        A 95 95 0 1 0 95 0
+      "/>
+
+      <!-- Inner hole -->
+      <path fill="#ffffff" d="
+        M 45 0
+        A 45 45 0 1 0 -45 0
+        A 45 45 0 1 0 45 0
+      "/>
+
+    </g>
+  </g>
+</svg>
