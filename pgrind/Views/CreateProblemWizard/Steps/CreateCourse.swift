@@ -17,10 +17,11 @@ struct CreateCourse: View {
             TextField(text: $courseTitle, prompt: Text("E.g. 'MIT 18.01 | Single Variable Calculus | Fall 2020'")) {
                 Text("Name")
             }
-            TextField(text: $courseSummary, prompt: Text("E.g. 'xxx'")) {
+            TextField(text: $courseSummary, prompt: Text("E.g. 'Master the calculus of derivatives, integrals, coordinate systems, and infinite series.'"), axis: .vertical) {
                 Text("Description")
             }
-            TextField(text: $courseHyperlink, prompt: Text("E.g. 'xxx'")) {
+            .lineLimit(3...5)
+            TextField(text: $courseHyperlink, prompt: Text("E.g. 'https://ocw.mit.edu/courses/18-01-calculus-i-single-variable-calculus-fall-2020/'")) {
                 Text("Website URL")
             }
         }
