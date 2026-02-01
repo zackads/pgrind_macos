@@ -5,6 +5,7 @@ import ScreenCaptureKit
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openWindow) private var openWindow
     
     @Query(sort: \Course.createdDate) private var courses: [Course]
     
@@ -23,16 +24,12 @@ struct ContentView: View {
         }.toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
-                    showingAddProblem = true
+                    openWindow(id: "create-problem")
                 } label: {
                     Label("Add a new problem", systemImage: "plus")
                 }
                 .keyboardShortcut("n", modifiers: [.command])
             }
-        }
-        .sheet(isPresented: $showingAddProblem) {
-            CreateProblemWizard()
-                .presentationSizing(.form)
         }
     }
 }

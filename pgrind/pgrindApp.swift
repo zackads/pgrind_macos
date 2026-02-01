@@ -26,5 +26,10 @@ struct pgrindApp: App {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
+        
+        WindowGroup(id: "create-problem") {
+            CreateProblemWizard()
+        }
+        .modelContainer(sharedModelContainer)
     }
 }
