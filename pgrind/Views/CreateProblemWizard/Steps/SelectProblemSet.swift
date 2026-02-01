@@ -73,7 +73,7 @@ struct SelectProblemSet: View {
             if let newestSection = course.problemSets.first {
                 selection = .existing(newestSection)
             } else {
-                selection = .none
+                selection = .new
             }
         }
         .toolbar {
