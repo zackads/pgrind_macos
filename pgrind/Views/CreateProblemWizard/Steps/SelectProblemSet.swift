@@ -10,8 +10,8 @@ struct SelectProblemSet: View {
         case new
     }
     
-    @Binding var path: [Route]
-    var course: Course
+    @Binding var path: [CreateProblemWizard.Route]
+    @Bindable var course: Course
     @Binding var selectedProblemSet: ProblemSet?
     var onCancel: () -> Void
     

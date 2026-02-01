@@ -5,7 +5,7 @@ import SwiftData
 struct SelectProblemKind: View {
     @Environment(\.dismiss) var dismiss
     
-    @Binding var path: [Route]
+    @Binding var path: [CreateProblemWizard.Route]
     let problemSet: ProblemSet
     @Binding var selectedProblemKind: ProblemKind?
     let onCancel: () -> Void
@@ -43,7 +43,7 @@ struct SelectProblemKind: View {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Continue") {
                     if selectedProblemKind == .image {
-                        path.append(.createImageProblem(problemSet))
+                        path.append(.createImageProblemQuestion(problemSet))
                     } else {
                         path.append(.createWebpageProblem(problemSet))
                     }
@@ -91,7 +91,7 @@ struct SelectProblemKind: View {
 }
 
 #Preview {
-    @Previewable @State var path: [Route] = []
+    @Previewable @State var path: [CreateProblemWizard.Route] = []
     @Previewable @State var kind: ProblemKind? = nil
     let course = Course(title: "Calculus I", summary: "Learn how to differentiate and integrate", hyperlink: "https://www.calculus.com")
     let problemSet = ProblemSet(course: course, name: "Week 1 problem sheet")
@@ -100,7 +100,7 @@ struct SelectProblemKind: View {
 }
 
 #Preview("Inside NavigationStack") {
-    @Previewable @State var path: [Route] = []
+    @Previewable @State var path: [CreateProblemWizard.Route] = []
     @Previewable @State var kind: ProblemKind? = nil
     let course = Course(title: "Calculus I", summary: "Learn how to differentiate and integrate", hyperlink: "https://www.calculus.com")
     let problemSet = ProblemSet(course: course, name: "Week 1 problem sheet")

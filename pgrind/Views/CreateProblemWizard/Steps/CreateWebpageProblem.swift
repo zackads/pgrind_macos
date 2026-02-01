@@ -4,7 +4,7 @@ import SwiftData
 struct CreateWebpageProblem: View {
     @Environment(\.modelContext) private var modelContext
     
-    @Binding var path: [Route]
+    @Binding var path: [CreateProblemWizard.Route]
     var problemSet: ProblemSet
     let onSave: () -> Void
     let onCancel: () -> Void
@@ -47,9 +47,7 @@ struct CreateWebpageProblem: View {
                         questionURL: questionURL,
                         solutionURL: solutionURL
                     )
-                    modelContext.insert(problem)
-                    
-                    print("Inserted WebpageProblem id:", problem.persistentModelID as Any)
+                    problemSet.problems.append(problem)
                     
                     onSave()
                 }
@@ -62,7 +60,7 @@ struct CreateWebpageProblem: View {
 }
 
 private struct PreviewHost: View {
-    @State private var path: [Route] = []
+    @State private var path: [CreateProblemWizard.Route] = []
     @State private var selectedProblemSet: ProblemSet? = ProblemSet(
         course: Course(
             title: "foo",

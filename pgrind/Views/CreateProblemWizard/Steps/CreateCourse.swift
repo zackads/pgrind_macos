@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct CreateCourse: View {
-    @Binding var path: [Route]
+    @Binding var path: [CreateProblemWizard.Route]
     @Binding var selectedCourse: Course?
     
     @State var courseTitle: String = ""
@@ -55,7 +55,7 @@ struct CreateCourse: View {
 }
 
 private struct PreviewHost: View {
-    @State private var path: [Route] = []
+    @State private var path: [CreateProblemWizard.Route] = []
     @State private var createdCourse: Course?
     
     var body: some View {

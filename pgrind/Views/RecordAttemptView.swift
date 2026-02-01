@@ -58,11 +58,12 @@ struct RecordAttemptView: View {
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
-                    modelContext.insert(
+                    problem.attempts.append(
                         Attempt(
                             problem: problem,
                             difficulty: selectedDifficulty,
-                            notes: notes)
+                            notes: notes
+                        )
                     )
                     
                     dismiss()

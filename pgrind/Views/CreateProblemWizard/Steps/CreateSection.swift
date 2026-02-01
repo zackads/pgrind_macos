@@ -5,7 +5,7 @@ struct CreateProblemSet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) var dismiss
     
-    @Binding var path: [Route]
+    @Binding var path: [CreateProblemWizard.Route]
     let course: Course
     @Binding var selectedProblemSet: ProblemSet?
     let onCancel: () -> Void
@@ -35,7 +35,7 @@ struct CreateProblemSet: View {
                         name: trimmed_name
                     )
                     
-                    modelContext.insert(newProblemSet)
+                    course.problemSets.append(newProblemSet)
                     
                     selectedProblemSet = newProblemSet
                     

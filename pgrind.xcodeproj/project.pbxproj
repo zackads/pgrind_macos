@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		1461A5C62F2FB6EA0027CD64 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 147DF4F52F1FD35800650E88 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 147DF4FC2F1FD35800650E88;
+			remoteInfo = pgrind;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		1461A5C02F2FB6EA0027CD64 /* pgrindUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = pgrindUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		147DF4FD2F1FD35800650E88 /* pgrind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pgrind.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -19,6 +30,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1461A5BD2F2FB6EA0027CD64 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		147DF4FA2F1FD35800650E88 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -41,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				147DF4FD2F1FD35800650E88 /* pgrind.app */,
+				1461A5C02F2FB6EA0027CD64 /* pgrindUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +67,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1461A5BF2F2FB6EA0027CD64 /* pgrindUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1461A5CA2F2FB6EA0027CD64 /* Build configuration list for PBXNativeTarget "pgrindUITests" */;
+			buildPhases = (
+				1461A5BC2F2FB6EA0027CD64 /* Sources */,
+				1461A5BD2F2FB6EA0027CD64 /* Frameworks */,
+				1461A5BE2F2FB6EA0027CD64 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1461A5C72F2FB6EA0027CD64 /* PBXTargetDependency */,
+			);
+			name = pgrindUITests;
+			packageProductDependencies = (
+			);
+			productName = pgrindUITests;
+			productReference = 1461A5C02F2FB6EA0027CD64 /* pgrindUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		147DF4FC2F1FD35800650E88 /* pgrind */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 147DF5082F1FD35800650E88 /* Build configuration list for PBXNativeTarget "pgrind" */;
@@ -80,6 +119,10 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					1461A5BF2F2FB6EA0027CD64 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 147DF4FC2F1FD35800650E88;
+					};
 					147DF4FC2F1FD35800650E88 = {
 						CreatedOnToolsVersion = 26.2;
 					};
@@ -100,11 +143,19 @@
 			projectRoot = "";
 			targets = (
 				147DF4FC2F1FD35800650E88 /* pgrind */,
+				1461A5BF2F2FB6EA0027CD64 /* pgrindUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1461A5BE2F2FB6EA0027CD64 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		147DF4FB2F1FD35800650E88 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +166,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		1461A5BC2F2FB6EA0027CD64 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		147DF4F92F1FD35800650E88 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,7 +182,53 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		1461A5C72F2FB6EA0027CD64 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 147DF4FC2F1FD35800650E88 /* pgrind */;
+			targetProxy = 1461A5C62F2FB6EA0027CD64 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		1461A5C82F2FB6EA0027CD64 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9575LA2F86;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zackads.pgrindUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = pgrind;
+			};
+			name = Debug;
+		};
+		1461A5C92F2FB6EA0027CD64 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9575LA2F86;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zackads.pgrindUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = pgrind;
+			};
+			name = Release;
+		};
 		147DF5062F1FD35800650E88 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -250,7 +354,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -280,7 +384,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -306,6 +410,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1461A5CA2F2FB6EA0027CD64 /* Build configuration list for PBXNativeTarget "pgrindUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1461A5C82F2FB6EA0027CD64 /* Debug */,
+				1461A5C92F2FB6EA0027CD64 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		147DF4F82F1FD35800650E88 /* Build configuration list for PBXProject "pgrind" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

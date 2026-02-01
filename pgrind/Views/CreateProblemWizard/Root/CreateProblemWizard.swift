@@ -1,16 +1,17 @@
 import SwiftUI
 import SwiftData
 
-enum Route: Hashable {
-    case createCourse
-    case createProblemSet(Course)
-    case selectProblemSet(Course)
-    case selectProblemKind(ProblemSet)
-    case createImageProblem(ProblemSet)
-    case createWebpageProblem(ProblemSet)
-}
-
 struct CreateProblemWizard: View {
+    enum Route: Hashable {
+        case createCourse
+        case createProblemSet(Course)
+        case selectProblemSet(Course)
+        case selectProblemKind(ProblemSet)
+        case createImageProblemQuestion(ProblemSet)
+        case createImageProblemSolution(ImageProblem)
+        case createWebpageProblem(ProblemSet)
+    }
+    
     @Environment(\.dismiss) private var dismiss
     
     @State private var path: [Route] = []
@@ -33,8 +34,10 @@ struct CreateProblemWizard: View {
                         CreateProblemSet(path: $path, course: course, selectedProblemSet: $selectedProblemSet, onCancel: { dismiss() })
                     case let .selectProblemKind(problemSet):
                         SelectProblemKind(path: $path, problemSet: problemSet, selectedProblemKind: $selectedProblemKind, onCancel: { dismiss() })
-                    case let .createImageProblem(problemSet):
-                        CreateImageProblem(path: $path, problemSet: problemSet, onSave: { dismiss() }, onCancel: { dismiss() })
+                    case let .createImageProblemQuestion(problemSet):
+                        CreateImageProblemQuestion(path: $path, problemSet: problemSet, onCancel: { dismiss() })
+                    case let .createImageProblemSolution(imageProblem):
+                        CreateImageProblemSolution(path: $path, imageProblem: imageProblem, onSave: { dismiss() }, onCancel: { dismiss() })
                     case let .createWebpageProblem(problemSet):
                         CreateWebpageProblem(path: $path, problemSet: problemSet, onSave: { dismiss() }, onCancel: { dismiss() })
                     }

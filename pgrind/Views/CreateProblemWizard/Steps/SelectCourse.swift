@@ -10,7 +10,7 @@ struct SelectCourse: View {
         case new
     }
     
-    @Binding var path: [Route]
+    @Binding var path: [CreateProblemWizard.Route]
     @Binding var course: Course?
     var onCancel: () -> Void
     
@@ -103,7 +103,7 @@ struct SelectCourse: View {
 }
 
 private struct SelectCoursePreviewHost: View {
-    @State private var path: [Route] = []
+    @State private var path: [CreateProblemWizard.Route] = []
     @State private var selectedCourse: Course? = nil
     
     var body: some View {
@@ -115,7 +115,7 @@ private struct SelectCoursePreviewHost: View {
 }
 
 private struct SelectCourseWithCoursesPreviewHost: View {
-    @State private var path: [Route] = []
+    @State private var path: [CreateProblemWizard.Route] = []
     @State private var selectedCourse: Course? = nil
     
     private let container: ModelContainer = {
