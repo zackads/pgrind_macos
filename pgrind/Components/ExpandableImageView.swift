@@ -47,7 +47,7 @@ struct ExpandableImageView: View {
                 }
         }
         .sheet(isPresented: $isExpanded) {
-            ZStack {
+            VStack(spacing: 16) {
                 ScrollView {
                     Image(nsImage: image)
                         .resizable()
@@ -61,24 +61,18 @@ struct ExpandableImageView: View {
                         }
                 }
                 .padding()
-                
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button {
-                            isExpanded = false
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .bold))
-                                .padding(10)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Circle())
-                        }
-                        .buttonStyle(.plain)
-                        .padding()
+
+                HStack {
+                    Spacer()
+                    Button {
+                        isExpanded = false
+                    } label: {
+                        Label("Close", systemImage: "xmark")
                     }
+                    .buttonStyle(.borderedProminent)
                     Spacer()
                 }
+                .padding(.bottom)
             }
             .presentationSizing(.automatic)
         }
