@@ -71,7 +71,7 @@ struct SelectCourse: View {
             }
         }
         .navigationTitle("Select a course")
-        .onAppear {
+        .task {
             if let newestCourse = courses.first {
                 selection = .existing(newestCourse)
             } else {

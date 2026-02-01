@@ -3,6 +3,7 @@ import SwiftData
 
 struct CreateProblemWizard: View {
     enum Route: Hashable {
+        case selectCourse
         case createCourse
         case createProblemSet(Course)
         case selectProblemSet(Course)
@@ -26,6 +27,8 @@ struct CreateProblemWizard: View {
             SelectCourse(path: $path, course: $selectedCourse, onCancel: { dismiss() })
                 .navigationDestination(for: Route.self) { route in
                     switch route {
+                    case.selectCourse:
+                        SelectCourse(path: $path, course: $selectedCourse, onCancel: { dismiss() })
                     case .createCourse:
                         CreateCourse(path: $path, selectedCourse: $selectedCourse, onCancel: { dismiss() })
                     case let .selectProblemSet(course):

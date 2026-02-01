@@ -45,7 +45,7 @@ struct CreateCourse: View {
                     
                     selectedCourse = newCourse
                     
-                    path.removeAll()
+                    path.append(.selectCourse)
                 }
                 .disabled(courseTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
                           courseSummary.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
