@@ -7,6 +7,12 @@ struct ExpandableImageView: View {
     @State private var isExpanded: Bool = false
     @State private var isHovering: Bool = false
     
+    private func copyToPasteboard(_ image: NSImage) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.writeObjects([image])
+    }
+    
     var body: some View {
         ZStack(alignment: .topTrailing) {
             Image(nsImage: image)
@@ -17,6 +23,11 @@ struct ExpandableImageView: View {
                 .onTapGesture { isExpanded = true }
                 .onHover { hovering in
                     isHovering = hovering
+                }
+                .contextMenu {
+                    Button("Copy") {
+                        copyToPasteboard(image)
+                    }
                 }
                 .overlay(alignment: .topTrailing) {
                     if isHovering {
@@ -43,6 +54,11 @@ struct ExpandableImageView: View {
                         .interpolation(.high)
                         .scaledToFit()
                         .frame(maxWidth: image.size.width, maxHeight: image.size.height)
+                        .contextMenu {
+                            Button("Copy") {
+                                copyToPasteboard(image)
+                            }
+                        }
                 }
                 .padding()
                 
