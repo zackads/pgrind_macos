@@ -4,6 +4,7 @@ import AppKit
 
 struct BrowseView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.openWindow) private var openWindow
     
     @Query(sort: \Course.createdDate, order: .forward) private var courses: [Course]
     @Query(sort: \ProblemSet.createdDate, order: .forward) private var problemSets: [ProblemSet]
@@ -46,6 +47,16 @@ struct BrowseView: View {
         }
         .onChange(of: selectedProblemSetID) { _, _ in
             selectedProblemID = nil
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    openWindow(id: "create-problem")
+                } label: {
+                    Label("Add a new problem", systemImage: "plus")
+                }
+                .keyboardShortcut("n", modifiers: [.command])
+            }
         }
     }
     

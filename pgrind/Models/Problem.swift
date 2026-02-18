@@ -1,11 +1,14 @@
 import Foundation
 import SwiftData
+import Combine
 
 @Model
 class Problem {
     var createdDate: Date
+    
     @Relationship
     var problemSet: ProblemSet
+    
     @Relationship(deleteRule: .cascade, inverse: \Attempt.problem)
     var attempts: [Attempt] = []
     

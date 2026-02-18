@@ -5,44 +5,15 @@ struct ProblemsHeatmapView: View {
     let problems: [Problem]
     let onSelect: (Problem) -> Void
 
-    @Query private var attempts: [Attempt]
-
-    init(problems: [Problem], onSelect: @escaping (Problem) -> Void) {
-        self.problems = problems
-        self.onSelect = onSelect
-
-        let ids = problems.map { $0.persistentModelID }
-        _attempts = Query(filter: #Predicate<Attempt> { a in
-            ids.contains(a.problem.persistentModelID)
-        })
-    }
-
     private let columns: [GridItem] = [
         GridItem(.adaptive(minimum: 12, maximum: 12), spacing: 2, alignment: .leading)
     ]
 
-    /// Latest attempt difficulty per problem (by timestamp).
-    private var latestDifficultyByProblemID: [PersistentIdentifier: Difficulty] {
-        var best: [PersistentIdentifier: (timestamp: Date, difficulty: Difficulty)] = [:]
-
-        for a in attempts {
-            let id = a.problem.persistentModelID
-            if let existing = best[id] {
-                if a.createdDate > existing.timestamp {
-                    best[id] = (a.createdDate, a.difficulty)
-                }
-            } else {
-                best[id] = (a.createdDate, a.difficulty)
-            }
-        }
-
-        return best.mapValues { $0.difficulty }
-    }
-
     var body: some View {
         LazyVGrid(columns: columns, spacing: 8) {
             ForEach(problems) { problem in
-                let difficulty = latestDifficultyByProblemID[problem.persistentModelID] ?? .notAttempted
+                let difficulty = problem.currentDifficulty
+                
                 ProblemHeatmapCell(problem: problem, difficulty: difficulty, onSelect: onSelect)
             }
         }
