@@ -11,42 +11,55 @@ struct BrowseView: View {
     @Query(sort: \Problem.createdDate, order: .forward) private var problems: [Problem]
     
     @State var path: [ProblemDetailView.Route] = []
-    @State private var selectedCourseID: PersistentIdentifier?
-    @State private var selectedProblemSetID: PersistentIdentifier?
-    @State private var selectedProblemID: PersistentIdentifier?
+    @State private var selectedCourse: Course?
+    @State private var selectedProblem: Problem?
     
-    private var selectedCourse: Course? {
-        return courses.first { $0.persistentModelID == selectedCourseID }
-    }
-    
-    private var selectedProblemSet: ProblemSet? {
-        problemSetsForSelectedCourse.first { $0.persistentModelID == selectedProblemSetID }
-    }
-    
-    private var problemSetsForSelectedCourse: [ProblemSet] {
-        return problemSets
-            .filter { $0.course.persistentModelID == selectedCourse?.persistentModelID }
-    }
-
-    private var problemsForSelectedProblemSet: [Problem] {
-        return problems
-            .filter { $0.problemSet.persistentModelID == selectedProblemSet?.persistentModelID }
-    }
+    @State private var showInspector = false
     
     var body: some View {
         NavigationSplitView {
-            coursesColumn
-        } content: {
-            problemSetsColumn
+            sidebar(courses: courses)
         } detail: {
-            detailColumn
+            NavigationStack(path: $path) {
+                Group {
+                    if let selectedCourse {
+                        List(selectedCourse.problemSets) { ps in
+                            VStack(alignment: .leading) {
+                                Text(ps.name)
+                                    .font(.title3)
+                                ProblemsGalleryView(problems: ps.problems) { problem in
+                                    selectedProblem = problem
+                                    path.append(.showQuestion(problem))
+                                }
+                            }
+                            .tag(ps)
+                        }
+                        .navigationTitle(selectedCourse.title)
+                    } else {
+                        ContentUnavailableView("Select a course", systemImage: "books.vertical")
+                    }
+                }
+                .navigationDestination(for: ProblemDetailView.Route.self) { route in
+                    switch route {
+                    case let .showQuestion(problem):
+                        ProblemDetailView(path: $path, problem: problem)
+                    case let .recordAttempt(problem):
+                        RecordAttemptView(path: $path, problem: problem)
+                    }
+                }
+            }
         }
-        .onChange(of: selectedCourseID) { _, _ in
-            selectedProblemSetID = nil
-            selectedProblemID = nil
+        .inspector(isPresented: $showInspector) {
+            Group {
+                if let selectedProblem {
+                    ProblemInspectorView(problem: selectedProblem)
+                } else {
+                    ContentUnavailableView("Select a problem", systemImage: "document.on.document")
+                }
+            }
         }
-        .onChange(of: selectedProblemSetID) { _, _ in
-            selectedProblemID = nil
+        .onChange(of: selectedCourse) { _, _ in
+            selectedProblem = nil
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -57,120 +70,137 @@ struct BrowseView: View {
                 }
                 .keyboardShortcut("n", modifiers: [.command])
             }
-        }
-    }
-    
-    private var coursesColumn: some View {
-        List(courses, selection: $selectedCourseID) { course in
-            Text(course.title).tag(course.persistentModelID)
-        }
-        .navigationTitle("Courses")
-        .onDeleteCommand {
-            guard let id = selectedCourseID, let course = courses.first(where: { $0.persistentModelID == id }) else { return }
-            modelContext.delete(course)
-            selectedCourseID = nil
-            selectedProblemSetID = nil
-            selectedProblemID = nil
-            try? modelContext.save()
-        }
-    }
-    
-    private var problemSetsColumn: some View {
-        Group {
-            if let course = selectedCourse {
-                List(problemSetsForSelectedCourse, selection: $selectedProblemSetID) { ps in
-                    VStack(alignment: .leading) {
-                        Text(ps.name)
-                        ProblemsHeatmapView(
-                            problems: ps.problems,
-                            onSelect: { _ in }
-                        )
-                        Divider()
-                    }
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    showInspector.toggle()
+                } label: {
+                    Label(showInspector ? "Hide Inspector" : "Show Inspector",
+                          systemImage: "sidebar.right")
                 }
-                .navigationTitle(course.title)
-                .onDeleteCommand {
-                    guard let id = selectedProblemSetID, let ps = problemSetsForSelectedCourse.first(where: { $0.persistentModelID == id }) else { return }
-                    modelContext.delete(ps)
-                    selectedProblemSetID = nil
-                    selectedProblemID = nil
-                    try? modelContext.save()
-                }
-            } else {
-                ContentUnavailableView("Select a course", systemImage: "books.vertical")
+                .keyboardShortcut("i", modifiers: [.command, .option])
             }
         }
     }
     
-    private var detailColumn: some View {
-        NavigationStack(path: $path) {
-            if let ps = selectedProblemSet {
-                List(problemsForSelectedProblemSet, selection: $selectedProblemID) { problem in
-                    HStack(spacing: 12) {
-                        switch problem {
-                        case let ip as ImageProblem:
-                            Image(systemName: "photo")
-                            Group {
-                                if let problemImage = NSImage(data: ip.questionImage) {
-                                    ExpandableImageView(image: problemImage)
-                                } else {
-                                    Text("Missing problem image")
-                                }
-                            }
-                        case let wp as WebpageProblem:
-                            Image(systemName: "globe")
-                            Text(wp.name)
-                            if let questionURL = URL(string: wp.questionURL) {
-                                Link(destination: questionURL) {
-                                    Label("Open question", systemImage: "arrow.up.right.square")
-                                }
-                                .buttonStyle(.bordered)
-                            }
-                        default:
-                            ContentUnavailableView("Unrecognized problem", systemImage: "exclamationmark.triangle")
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: { path.append(.showQuestion(problem)) }) {
-                            Label("Attempt", systemImage: "square.and.pencil")
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tag(problem.persistentModelID)
-                    }
-                }
-                .navigationTitle(ps.name)
-                .onDeleteCommand {
-                    guard
-                        let id = selectedProblemID,
-                        let problem = problemsForSelectedProblemSet.first(where: { $0.persistentModelID == id }) else { return }
-                    modelContext.delete(problem)
-                    selectedProblemID = nil
+    private func sidebar(courses: [Course]) -> some View {
+        VStack {
+            Text("📚 Courses")
+            List(courses, selection: $selectedCourse) { course in
+                Text(course.title).tag(course)
+            }
+            .navigationTitle("Courses")
+            .onDeleteCommand {
+                if let toDelete = selectedCourse {
+                    modelContext.delete(toDelete)
+                    
+                    selectedCourse = nil
+                    selectedProblem = nil
+                    
                     try? modelContext.save()
                 }
-            } else if selectedCourse != nil {
+            }
+        }
+    }
+    
+    private func inspector(problemSet: ProblemSet?) -> some View {
+        Group {
+            if let problemSet {
+                List(problemSet.problems, selection: $selectedProblem) { problem in
+                    switch problem {
+                    case let p as ImageProblem:
+                        HStack {
+                            Image(systemName: "photo")
+                            if let problemImage = NSImage(data: p.questionImage) {
+                                ExpandableImageView(image: problemImage)
+                            } else {
+                                Text("Missing problem image")
+                            }
+                        }
+                        .tag(problem)
+                    case let p as WebpageProblem:
+                        HStack {
+                            Image(systemName: "globe")
+                            Text(p.name)
+                        }
+                        .tag(problem)
+                    default:
+                        EmptyView()
+                    }
+                }
+                .navigationTitle(problemSet.name)
+            } else {
                 ContentUnavailableView("Select a problem set", systemImage: "document.on.document")
             }
         }
-        .navigationDestination(for: ProblemDetailView.Route.self) { route in
-            switch route {
-            case let .showQuestion(problem):
-                ProblemDetailView(path: $path, problem: problem)
-            case let .recordAttempt(problem):
-                RecordAttemptView(path: $path, problem: problem)
-            }
-        }
+    }
+//        NavigationStack(path: $path) {
+//            if let ps = selectedProblemSet {
+//                List(problemsForSelectedProblemSet, selection: $selectedProblemID) { problem in
+//                    HStack(spacing: 12) {
+//                        switch problem {
+//                        case let ip as ImageProblem:
+//                            Image(systemName: "photo")
+//                            Group {
+//                                if let problemImage = NSImage(data: ip.questionImage) {
+//                                    ExpandableImageView(image: problemImage)
+//                                } else {
+//                                    Text("Missing problem image")
+//                                }
+//                            }
+//                        case let wp as WebpageProblem:
+//                            Image(systemName: "globe")
+//                            Text(wp.name)
+//                            if let questionURL = URL(string: wp.questionURL) {
+//                                Link(destination: questionURL) {
+//                                    Label("Open question", systemImage: "arrow.up.right.square")
+//                                }
+//                                .buttonStyle(.bordered)
+//                            }
+//                        default:
+//                            ContentUnavailableView("Unrecognized problem", systemImage: "exclamationmark.triangle")
+//                        }
+//                        
+//                        Spacer()
+//                        
+//                        Button(action: { path.append(.showQuestion(problem)) }) {
+//                            Label("Attempt", systemImage: "square.and.pencil")
+//                        }
+//                        .buttonStyle(.borderedProminent)
+//                        .tag(problem.persistentModelID)
+//                    }
+//                }
+//                .navigationTitle(ps.name)
+//                .onDeleteCommand {
+//                    guard
+//                        let id = selectedProblemID,
+//                        let problem = problemsForSelectedProblemSet.first(where: { $0.persistentModelID == id }) else { return }
+//                    modelContext.delete(problem)
+//                    selectedProblemID = nil
+//                    try? modelContext.save()
+//                }
+//            } else if selectedCourse != nil {
+//                ContentUnavailableView("Select a problem set", systemImage: "document.on.document")
+//            }
+//        }
+//        .navigationDestination(for: ProblemDetailView.Route.self) { route in
+//            switch route {
+//            case let .showQuestion(problem):
+//                ProblemDetailView(path: $path, problem: problem)
+//            case let .recordAttempt(problem):
+//                RecordAttemptView(path: $path, problem: problem)
+//            }
+//        }
     }
         
-    private func deleteProblemSets(at offsets: IndexSet) {
-        let toDelete = offsets.map { problemSetsForSelectedCourse[$0] }
-        toDelete.forEach(modelContext.delete)
-        if let selected = selectedProblemSetID, toDelete.contains(where: { $0.persistentModelID == selected }) {
-            selectedProblemSetID = nil
-            selectedProblemID = nil
-        }
-        try? modelContext.save()
-    }
+//    private func deleteProblemSets(at offsets: IndexSet) {
+//        let toDelete = offsets.map { problemSetsForSelectedCourse[$0] }
+//        toDelete.forEach(modelContext.delete)
+//        if let selected = selectedProblemSetID, toDelete.contains(where: { $0.persistentModelID == selected }) {
+//            selectedProblemSetID = nil
+//            selectedProblemID = nil
+//        }
+//        try? modelContext.save()
+//    }
     
 //    private func deleteProblems(at offsets: IndexSet) {
 //        guard let selectedCourse else { return }
@@ -192,7 +222,6 @@ struct BrowseView: View {
 //        }
 //        try? modelContext.save()
 //    }
-}
 
 #Preview {
     let schema = Schema([

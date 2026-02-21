@@ -26,7 +26,7 @@ struct StudyProblemView: View {
                     }
                 case let wp as WebpageProblem:
                     VStack {
-                        Text(wp.name).font(.title2)
+                        Text("Name goes here").font(.title2)
 
                         if let questionURL = URL(string: wp.questionURL) {
                             Link(destination: questionURL) {

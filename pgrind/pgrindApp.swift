@@ -13,10 +13,14 @@ struct pgrindApp: App {
             WebpageProblem.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+        
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(
+                for: schema,
+                migrationPlan: MigrationPlan.self,
+                configurations: [modelConfiguration])
         } catch {
+            print("ModelContainer init failed:", String(reflecting: error))
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()

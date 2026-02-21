@@ -28,14 +28,14 @@ struct ProblemDetailView: View {
                 Image(systemName: "photo")
                 Group {
                     if let problemImage = NSImage(data: ip.questionImage) {
-                        ExpandableImageView(image: problemImage)
+                        Image(nsImage: problemImage)
                     } else {
                         Text("Missing problem image")
                     }
                 }
             case let wp as WebpageProblem:
                 Image(systemName: "globe")
-                Text(wp.name)
+                Text("Name goes here")
                 if let questionURL = URL(string: wp.questionURL) {
                     Link(destination: questionURL) {
                         Label("Open question", systemImage: "arrow.up.right.square")

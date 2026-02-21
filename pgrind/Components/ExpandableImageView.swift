@@ -19,7 +19,7 @@ struct ExpandableImageView: View {
                 .resizable()
                 .interpolation(.high)
                 .scaledToFit()
-                .frame(maxWidth: image.size.width, maxHeight: image.size.height)
+                .frame(maxWidth: 180, maxHeight: 120)
                 .onTapGesture { isExpanded = true }
                 .onHover { hovering in
                     isHovering = hovering
@@ -74,7 +74,7 @@ struct ExpandableImageView: View {
                 }
                 .padding(.bottom)
             }
-            .presentationSizing(.automatic)
+            .presentationSizing(.fitted)
         }
     }
 }
