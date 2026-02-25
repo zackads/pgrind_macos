@@ -47,14 +47,19 @@ struct ProblemDetailView: View {
             }
             
             Spacer()
-            
-            Button(action: { path.append(.recordAttempt(problem)) }) {
-                Label("Show solution", systemImage: "eye")
-            }
-            .buttonStyle(.borderedProminent)
         }
         .padding()
         .navigationTitle("Problem")
+        .toolbar {
+            ToolbarItem(placement: .status) {
+                Button {
+                    path.append(.recordAttempt(problem))
+                } label: {
+                    Label("Attempt", systemImage: "pencil")
+                }
+                .labelStyle(.titleAndIcon)
+            }
+        }
     }
 }
 

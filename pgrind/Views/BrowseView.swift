@@ -2,6 +2,11 @@ import SwiftUI
 import SwiftData
 import AppKit
 
+private enum ViewMode {
+    case thumbnail
+    case heatmap
+}
+
 struct BrowseView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
@@ -15,6 +20,7 @@ struct BrowseView: View {
     @State private var selectedProblem: Problem?
     
     @State private var showInspector = false
+    @State private var viewMode: ViewMode = ViewMode.heatmap
     
     var body: some View {
         NavigationSplitView {
@@ -27,9 +33,19 @@ struct BrowseView: View {
                             VStack(alignment: .leading) {
                                 Text(ps.name)
                                     .font(.title3)
-                                ProblemsGalleryView(problems: ps.problems) { problem in
-                                    selectedProblem = problem
-                                    path.append(.showQuestion(problem))
+                                Group {
+                                    switch viewMode {
+                                    case .thumbnail:
+                                        ProblemsGalleryView(problems: ps.problems) { problem in
+                                            selectedProblem = problem
+                                            path.append(.showQuestion(problem))
+                                        }
+                                    case .heatmap:
+                                        ProblemsHeatmapView(problems: ps.problems) { problem in
+                                            selectedProblem = problem
+                                            path.append(.showQuestion(problem))
+                                        }
+                                    }
                                 }
                             }
                             .tag(ps)
@@ -78,6 +94,14 @@ struct BrowseView: View {
                           systemImage: "sidebar.right")
                 }
                 .keyboardShortcut("i", modifiers: [.command, .option])
+            }
+            ToolbarItem(placement: .status) {
+                Picker("View", selection: $viewMode) {
+                    Label("Thumbnails", systemImage: "photo.stack").tag(ViewMode.thumbnail)
+                    Label("Heatmap", systemImage: "flame").tag(ViewMode.heatmap)
+                }
+                .pickerStyle(.segmented)
+                .help("Toggle between thumbnail and heatmap views")
             }
         }
     }
@@ -133,95 +157,7 @@ struct BrowseView: View {
             }
         }
     }
-//        NavigationStack(path: $path) {
-//            if let ps = selectedProblemSet {
-//                List(problemsForSelectedProblemSet, selection: $selectedProblemID) { problem in
-//                    HStack(spacing: 12) {
-//                        switch problem {
-//                        case let ip as ImageProblem:
-//                            Image(systemName: "photo")
-//                            Group {
-//                                if let problemImage = NSImage(data: ip.questionImage) {
-//                                    ExpandableImageView(image: problemImage)
-//                                } else {
-//                                    Text("Missing problem image")
-//                                }
-//                            }
-//                        case let wp as WebpageProblem:
-//                            Image(systemName: "globe")
-//                            Text(wp.name)
-//                            if let questionURL = URL(string: wp.questionURL) {
-//                                Link(destination: questionURL) {
-//                                    Label("Open question", systemImage: "arrow.up.right.square")
-//                                }
-//                                .buttonStyle(.bordered)
-//                            }
-//                        default:
-//                            ContentUnavailableView("Unrecognized problem", systemImage: "exclamationmark.triangle")
-//                        }
-//                        
-//                        Spacer()
-//                        
-//                        Button(action: { path.append(.showQuestion(problem)) }) {
-//                            Label("Attempt", systemImage: "square.and.pencil")
-//                        }
-//                        .buttonStyle(.borderedProminent)
-//                        .tag(problem.persistentModelID)
-//                    }
-//                }
-//                .navigationTitle(ps.name)
-//                .onDeleteCommand {
-//                    guard
-//                        let id = selectedProblemID,
-//                        let problem = problemsForSelectedProblemSet.first(where: { $0.persistentModelID == id }) else { return }
-//                    modelContext.delete(problem)
-//                    selectedProblemID = nil
-//                    try? modelContext.save()
-//                }
-//            } else if selectedCourse != nil {
-//                ContentUnavailableView("Select a problem set", systemImage: "document.on.document")
-//            }
-//        }
-//        .navigationDestination(for: ProblemDetailView.Route.self) { route in
-//            switch route {
-//            case let .showQuestion(problem):
-//                ProblemDetailView(path: $path, problem: problem)
-//            case let .recordAttempt(problem):
-//                RecordAttemptView(path: $path, problem: problem)
-//            }
-//        }
-    }
-        
-//    private func deleteProblemSets(at offsets: IndexSet) {
-//        let toDelete = offsets.map { problemSetsForSelectedCourse[$0] }
-//        toDelete.forEach(modelContext.delete)
-//        if let selected = selectedProblemSetID, toDelete.contains(where: { $0.persistentModelID == selected }) {
-//            selectedProblemSetID = nil
-//            selectedProblemID = nil
-//        }
-//        try? modelContext.save()
-//    }
-    
-//    private func deleteProblems(at offsets: IndexSet) {
-//        guard let selectedCourse else { return }
-//        
-//        let toDelete = offsets.map { selectedCourse.problems[$0] }
-//        for problem in toDelete {
-//            modelContext.delete(problem)
-//        }
-//        
-//        if let id = selectedProblemID, toDelete.contains(where: { $0.persistentModelID == id }) {
-//            selectedProblemID = nil
-//        }
-//    }
-//    
-//    private func delete(_ problem: Problem) {
-//        modelContext.delete(problem)
-//        if selectedProblemID == problem.persistentModelID {
-//            selectedProblemID = nil
-//        }
-//        try? modelContext.save()
-//    }
+}
 
 #Preview {
     let schema = Schema([
