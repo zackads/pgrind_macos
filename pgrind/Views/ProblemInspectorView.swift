@@ -9,7 +9,11 @@ import SwiftUI
 import SwiftData
 
 struct ProblemInspectorView: View {
+    @Environment(\.modelContext) private var modelContext
     let problem: Problem
+    
+    @State var solutionImagesData: [Data] = []
+    @State var editing: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -29,7 +33,6 @@ struct ProblemInspectorView: View {
             } else {
                 Text("Not attempted")
             }
-            
             
             Divider()
 
@@ -72,18 +75,81 @@ struct ProblemInspectorView: View {
     @ViewBuilder
     private func imageProblemInspector(_ p: ImageProblem) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 12) {
-                Group {
-                    if let img = NSImage(data: p.questionImage) {
-                        ExpandableImageView(image: img)
-                    } else {
-                        ContentUnavailableView("Missing question image", systemImage: "photo")
-                    }
+            Group {
+                if let img = NSImage(data: p.questionImage) {
+                    ExpandableImageView(image: img)
+                } else {
+                    ContentUnavailableView("Missing question image", systemImage: "photo")
                 }
-                .frame(maxWidth: .infinity)
             }
+            .frame(maxWidth: .infinity)
 
             Divider()
+            
+            Group {
+                if let data = p.solutionImage, let img = NSImage(data: data) {
+                    ExpandableImageView(image: img)
+                } else {
+                    if !solutionImagesData.isEmpty {
+                        VStack(spacing: 12) {
+                            PiledImagesView(imagesData: solutionImagesData)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            HStack {
+                                Button {
+                                    Task { @MainActor in
+                                        if let newData = await Screenshotter.takeScreenshot() {
+                                            solutionImagesData.append(newData)
+                                        }
+                                    }
+                                } label: {
+                                    Label("Add another screenshot", systemImage: "plus")
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.large)
+
+                                Button(role: .destructive) {
+                                    solutionImagesData.removeAll()
+                                } label: {
+                                    Label("Clear", systemImage: "trash")
+                                }
+                                .buttonStyle(.bordered)
+                                .controlSize(.large)
+                            }
+                        }
+                    } else {
+                        Button {
+                            Task { @MainActor in
+                                if let newData = await Screenshotter.takeScreenshot() {
+                                    solutionImagesData.append(newData)
+                                    editing = true
+                                }
+                            }
+                        } label: {
+                            Label("Take a screenshot", systemImage: "camera.viewfinder")
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+            
+            if editing {
+                Button {
+                    do {
+                        if let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
+                            p.solutionImage = mergedSolution
+                        }
+                        
+                        do {
+                            try modelContext.save()
+                            editing = false
+                        } catch {
+                            print("Failed to save model context: \(error)")
+                        }
+                    }
+                } label: {
+                    Label("Save changes", systemImage: "")
+                }
+            }
 
             statsSection
         }

@@ -51,13 +51,12 @@ struct ProblemDetailView: View {
         .padding()
         .navigationTitle("Problem")
         .toolbar {
-            ToolbarItem(placement: .status) {
+            ToolbarItem(placement: .principal) {
                 Button {
                     path.append(.recordAttempt(problem))
                 } label: {
-                    Label("Attempt", systemImage: "pencil")
+                    Label("Attempt", systemImage: "bolt")
                 }
-                .labelStyle(.titleAndIcon)
             }
         }
     }
