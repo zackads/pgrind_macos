@@ -2,8 +2,17 @@ import Foundation
 import SwiftData
 import Combine
 
+@MainActor
 @Model
-class Problem {
+class Problem: CustomStringConvertible, Comparable {
+    static func < (lhs: Problem, rhs: Problem) -> Bool {
+        lhs.createdDate < rhs.createdDate
+    }
+    
+    var description: String {
+        return "Problem(created: \(createdDate), attempts: \(attempts.count), difficulty: \(currentDifficulty))"
+    }
+    
     var createdDate: Date
     
     @Relationship
@@ -29,3 +38,4 @@ class Problem {
         return latest.createdDate
     }
 }
+

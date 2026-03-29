@@ -85,7 +85,12 @@ struct CreateImageProblemQuestion: View {
                         
                         problemSet.problems.append(imageProblem)
                         
-                        path.append(.createImageProblemSolution(imageProblem))
+                        do {
+                            try modelContext.save()
+                            path.append(.createImageProblemSolution(imageProblem))
+                        } catch {
+                            print("Failed to save model context: \(error)")
+                        }
                     }
                 }
                 .disabled(questionImagesData.isEmpty)

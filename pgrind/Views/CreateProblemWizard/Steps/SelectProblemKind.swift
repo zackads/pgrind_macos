@@ -33,6 +33,11 @@ struct SelectProblemKind: View {
             }
         }
         .navigationTitle("What kind of problem?")
+        .onAppear {
+            if let majorityKind = problemSet.modalProblemKind {
+                selectedProblemKind = majorityKind
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {

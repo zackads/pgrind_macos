@@ -70,8 +70,10 @@ struct SelectProblemSet: View {
         }
         .navigationTitle("Select a problem set in \(course.title)")
         .onAppear {
-            if let newestSection = course.problemSets.first {
-                selection = .existing(newestSection)
+            if let recentlyEdited = (course.problemSets.max { lhs, rhs in
+                lhs.lastAddedTo < rhs.lastAddedTo
+            }) {
+                selection = .existing(recentlyEdited)
             } else {
                 selection = .new
             }
