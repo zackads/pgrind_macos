@@ -142,12 +142,13 @@ struct ProblemInspectorView: View {
                         do {
                             try modelContext.save()
                             editing = false
+                            solutionImagesData = []
                         } catch {
                             print("Failed to save model context: \(error)")
                         }
                     }
                 } label: {
-                    Label("Save changes", systemImage: "")
+                    Label("Save", systemImage: "")
                 }
             }
 

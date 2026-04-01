@@ -28,7 +28,13 @@ struct ProblemDetailView: View {
                 Image(systemName: "photo")
                 Group {
                     if let problemImage = NSImage(data: ip.questionImage) {
-                        Image(nsImage: problemImage)
+                        ScrollView([.horizontal, .vertical]) {
+                            Image(nsImage: problemImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: 400)
                     } else {
                         Text("Missing problem image")
                     }

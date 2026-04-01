@@ -82,6 +82,8 @@ struct CreateImageProblemSolution: View {
                         imageProblem.solutionImage = mergedSolution
                     }
                     
+                    solutionImagesData = []
+                    
                     onSave()
                 }
             }

@@ -14,9 +14,20 @@ struct BrowseView: View {
     @Query(sort: \Course.createdDate, order: .forward) private var courses: [Course]
     @Query(sort: \ProblemSet.createdDate, order: .forward) private var problemSets: [ProblemSet]
     @Query(sort: \Problem.createdDate, order: .forward) private var problems: [Problem]
+    @Query(sort: \Deck.createdDate, order: .forward) private var decks: [Deck]
     
     @State var path: [ProblemDetailView.Route] = []
-    @State private var selectedCourse: Course?
+    
+    enum SidebarItem: Hashable {
+        case course(Course)
+        case deck(Deck)
+    }
+    @State private var selectedSidebarItem: SidebarItem?
+    var selectedCourse: Course? {
+        if case .course(let course) = selectedSidebarItem { return course }
+        return nil
+    }
+    
     @State private var selectedProblem: Problem?
     
     @State private var showInspector = false
@@ -28,8 +39,9 @@ struct BrowseView: View {
         } detail: {
             NavigationStack(path: $path) {
                 Group {
-                    if let selectedCourse {
-                        List(selectedCourse.problemSets) { ps in
+                    switch selectedSidebarItem {
+                    case .course(let course):
+                        List(course.problemSets) { ps in
                             VStack(alignment: .leading) {
                                 Text(ps.name)
                                     .font(.title3)
@@ -50,8 +62,10 @@ struct BrowseView: View {
                             }
                             .tag(ps)
                         }
-                        .navigationTitle(selectedCourse.title)
-                    } else {
+                        .navigationTitle(course.title)
+                    case .deck(let deck):
+                        Text("TODO!")
+                    case nil:
                         ContentUnavailableView("Select a course", systemImage: "books.vertical")
                     }
                 }
@@ -74,7 +88,7 @@ struct BrowseView: View {
                 }
             }
         }
-        .onChange(of: selectedCourse) { _, _ in
+        .onChange(of: selectedSidebarItem) { _, _ in
             selectedProblem = nil
         }
         .toolbar {
@@ -136,21 +150,31 @@ struct BrowseView: View {
     }
     
     private func sidebar(courses: [Course]) -> some View {
-        VStack {
-            Text("📚 Courses")
-            List(courses, selection: $selectedCourse) { course in
-                Text(course.title).tag(course)
-            }
-            .navigationTitle("Courses")
-            .onDeleteCommand {
-                if let toDelete = selectedCourse {
-                    modelContext.delete(toDelete)
-                    
-                    selectedCourse = nil
-                    selectedProblem = nil
-                    
-                    try? modelContext.save()
+        return List(selection: $selectedSidebarItem) {
+            Section {
+                ForEach(courses) { course in
+                    Text(course.title).tag(SidebarItem.course(course))
                 }
+                .onDeleteCommand {
+                    if case .course(let course) = selectedSidebarItem {
+                        modelContext.delete(course)
+                        
+                        selectedSidebarItem = nil
+                        selectedProblem = nil
+                        
+                        try? modelContext.save()
+                    }
+                }
+            } header: {
+                Label("Courses", systemImage: "books.vertical")
+            }
+            
+            Section {
+                ForEach(decks) { deck in
+                    Text(deck.title).tag(SidebarItem.deck(deck))
+                }
+            } header: {
+                Label("Decks", systemImage: "square.stack.3d.up")
             }
         }
     }
