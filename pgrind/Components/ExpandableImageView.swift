@@ -7,12 +7,6 @@ struct ExpandableImageView: View {
     @State private var isExpanded: Bool = false
     @State private var isHovering: Bool = false
     
-    private func copyToPasteboard(_ image: NSImage) {
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.writeObjects([image])
-    }
-    
     var body: some View {
         ZStack(alignment: .topTrailing) {
             Image(nsImage: image)
@@ -47,34 +41,62 @@ struct ExpandableImageView: View {
                 }
         }
         .sheet(isPresented: $isExpanded) {
-            VStack(spacing: 16) {
-                ScrollView {
-                    Image(nsImage: image)
-                        .resizable()
-                        .interpolation(.high)
-                        .scaledToFit()
-                        .frame(maxWidth: image.size.width, maxHeight: image.size.height)
-                        .contextMenu {
-                            Button("Copy") {
-                                copyToPasteboard(image)
-                            }
-                        }
-                }
-                .padding()
-
-                HStack {
-                    Spacer()
-                    Button {
-                        isExpanded = false
-                    } label: {
-                        Label("Close", systemImage: "xmark")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    Spacer()
-                }
-                .padding(.bottom)
-            }
-            .presentationSizing(.fitted)
+            ExpandedImageView(image: image, isExpanded: $isExpanded)
         }
     }
+}
+
+struct ExpandedImageView: View {
+    let image: NSImage
+    @Binding var isExpanded: Bool
+    
+    @State private var scale: CGFloat = 1.0
+    @State private var lastScale: CGFloat = 1.0
+    
+    var body: some View {
+        return VStack(spacing: 16) {
+            ScrollView([.horizontal, .vertical]) {
+                Image(nsImage: image)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .scaleEffect(scale, anchor: .top)
+                    .animation(.none, value: scale) // prevent implicit animations during pinch
+                    .gesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                scale = min(max(lastScale * value, 0.5), 6.0)
+                            }
+                            .onEnded { _ in
+                                lastScale = scale
+                            }
+                    )
+                    .contextMenu {
+                        Button("Copy") {
+                            copyToPasteboard(image)
+                        }
+                    }
+            }
+            .padding()
+            
+            HStack {
+                Spacer()
+                Button {
+                    isExpanded = false
+                } label: {
+                    Label("Close", systemImage: "xmark")
+                }
+                .buttonStyle(.borderedProminent)
+                Spacer()
+            }
+            .padding(.bottom)
+        }
+        .presentationSizing(.fitted)
+    }
+}
+
+func copyToPasteboard(_ image: NSImage) {
+    let pasteboard = NSPasteboard.general
+    pasteboard.clearContents()
+    pasteboard.writeObjects([image])
 }
