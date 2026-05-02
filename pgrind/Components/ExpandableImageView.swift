@@ -3,6 +3,7 @@ import SwiftData
 
 struct ExpandableImageView: View {
     let image: NSImage
+    var maxSize: CGSize? = CGSize(width: 180, height: 120)
     
     @State private var isExpanded: Bool = false
     @State private var isHovering: Bool = false
@@ -13,7 +14,10 @@ struct ExpandableImageView: View {
                 .resizable()
                 .interpolation(.high)
                 .scaledToFit()
-                .frame(maxWidth: 180, maxHeight: 120)
+                .frame(
+                    maxWidth: maxSize?.width ?? .infinity,
+                    maxHeight: maxSize?.height ?? .infinity
+                )
                 .onTapGesture { isExpanded = true }
                 .onHover { hovering in
                     isHovering = hovering

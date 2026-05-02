@@ -78,38 +78,34 @@ struct RecordImageProblemAttemptView: View {
     enum Tab: Hashable {
         case question, solution
     }
-    
+
     var problem: ImageProblem
     @State private var selectedTab: Tab = .solution
-    
+
     var body: some View {
-        VStack {
-            switch selectedTab {
-            case .question:
-                Group {
-                    if let questionImage = NSImage(data: problem.questionImage) {
-                        ExpandableImageView(image: questionImage)
-                    } else {
-                        ContentUnavailableView("Missing question image", systemImage: "photo")
-                    }
+        TabView(selection: $selectedTab) {
+            Group {
+                if let questionImage = NSImage(data: problem.questionImage) {
+                    ExpandableImageView(image: questionImage, maxSize: nil)
+                } else {
+                    ContentUnavailableView("Missing question image", systemImage: "photo")
                 }
-                .tabItem { Label("Question", systemImage: "photo") }
-                .tag(Tab.question)
-            case .solution:
-                Group {
-                    if let data = problem.solutionImage, let solutionImage = NSImage(data: data) {
-                        ExpandableImageView(image: solutionImage)
-                    } else {
-                        ContentUnavailableView("Missing solution image", systemImage: "photo")
-                    }
-                }
-                .tabItem { Label("Solution", systemImage: "photo") }
-                .tag(Tab.solution)
             }
+            .tabItem { Label("Question", systemImage: "doc.text") }
+            .tag(Tab.question)
+
+            Group {
+                if let data = problem.solutionImage, let solutionImage = NSImage(data: data) {
+                    ExpandableImageView(image: solutionImage, maxSize: nil)
+                } else {
+                    ContentUnavailableView("Missing solution image", systemImage: "photo")
+                }
+            }
+            .tabItem { Label("Solution", systemImage: "checkmark.circle") }
+            .tag(Tab.solution)
         }
     }
 }
-
 
 
 #Preview("WebpageProblem") {
