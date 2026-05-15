@@ -1,25 +1,25 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct SelectProblemSet: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     private enum Selection: Equatable {
         case none
         case existing(ProblemSet)
         case new
     }
-    
+
     @Binding var path: [CreateProblemWizard.Route]
     @Bindable var course: Course
     @Binding var selectedProblemSet: ProblemSet?
     var onCancel: () -> Void
-    
+
     @State private var selection: Selection = .none
-    
+
     var body: some View {
         Form {
-            ScrollView{
+            ScrollView {
                 ForEach(course.problemSets) { choice in
                     Button(action: {
                         selection = .existing(choice)
@@ -27,7 +27,7 @@ struct SelectProblemSet: View {
                         ChoiceCard(
                             title: choice.name,
                             isSelected: {
-                                if case .existing(let c) = selection {
+                                if case let .existing(c) = selection {
                                     return c == choice
                                 } else {
                                     return false
@@ -37,7 +37,7 @@ struct SelectProblemSet: View {
                     }
                     .buttonStyle(.plain)
                 }
-                
+
                 Button(action: {
                     selection = .new
                 }) {
@@ -54,7 +54,7 @@ struct SelectProblemSet: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        
+
                         if selection == .new {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.title3)
@@ -89,7 +89,7 @@ struct SelectProblemSet: View {
                     switch selection {
                     case .new:
                         path.append(.createProblemSet(course))
-                    case .existing(let selectedSection):
+                    case let .existing(selectedSection):
                         path.append(.createImageProblemQuestion(selectedSection))
                     case .none:
                         fatalError("Invalid state")

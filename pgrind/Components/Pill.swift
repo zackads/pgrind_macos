@@ -12,7 +12,7 @@ struct Pill: View {
     var foreground: Color = .primary
     var background: Color = .secondary
     var height: CGFloat = 22
-    
+
     var body: some View {
         Text(text)
             .font(.caption)

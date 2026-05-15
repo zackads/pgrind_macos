@@ -74,7 +74,6 @@ private struct GalleryCell: View {
                 background: statusBackground,
                 height: pillHeight
             )
-            
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: totalHeight, alignment: .top)
@@ -113,35 +112,35 @@ private struct GalleryCell: View {
             return "Problem"
         }
     }
-    
+
     private var statusText: String {
         switch problem.currentDifficulty {
-            case .notAttempted:
-                return "Not attempted"
-            case .easy:
-                return "Easy"
-            case .medium:
-                return "Medium"
-            case .hard:
-                return "Hard"
+        case .notAttempted:
+            return "Not attempted"
+        case .easy:
+            return "Easy"
+        case .medium:
+            return "Medium"
+        case .hard:
+            return "Hard"
         }
     }
 
     private var statusBackground: Color {
         switch problem.currentDifficulty {
-            case .notAttempted: return .clear
-            case .hard: return .red.opacity(0.25)
-            case .medium: return .orange.opacity(0.25) // “amber”
-            case .easy: return .green.opacity(0.25)
+        case .notAttempted: return .clear
+        case .hard: return .red.opacity(0.25)
+        case .medium: return .orange.opacity(0.25) // “amber”
+        case .easy: return .green.opacity(0.25)
         }
     }
 
     private var statusForeground: Color {
         switch problem.currentDifficulty {
-            case .notAttempted: return .secondary
-            case .hard: return .red
-            case .medium: return .orange
-            case .easy: return .green
+        case .notAttempted: return .secondary
+        case .hard: return .red
+        case .medium: return .orange
+        case .easy: return .green
         }
     }
 }
@@ -154,10 +153,11 @@ private struct GalleryCell: View {
 
     let imageProblem = ImageProblem(
         problemSet: problemSet,
-        questionImage: Data(), solutionImage: nil, createdDate: Date())
+        questionImage: Data(), solutionImage: nil, createdDate: Date()
+    )
 
     return ProblemsGalleryView(
         problems: [imageProblem]
     ) { _ in }
-    .padding()
+        .padding()
 }

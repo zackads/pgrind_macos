@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct CreateProblemWizard: View {
     enum Route: Hashable {
@@ -10,23 +10,23 @@ struct CreateProblemWizard: View {
         case createImageProblemQuestion(ProblemSet)
         case createImageProblemSolution(ImageProblem)
     }
-    
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    
+
     let courseID: PersistentIdentifier?
     var course: Course? {
         guard let courseID else { return nil }
         return modelContext.model(for: courseID) as? Course
     }
-    
+
     @State private var path: [Route] = []
     @State private var selectedCourse: Course?
     @State private var selectedProblemSet: ProblemSet?
     @State private var selectedProblemKind: ProblemKind?
     @State private var imageProblem: Problem?
     @State private var websiteProblem: Problem?
-    
+
     var body: some View {
         NavigationStack(path: $path) {
             Group {
@@ -59,11 +59,10 @@ struct CreateProblemWizard: View {
     }
 }
 
-
 #Preview {
     let schema = Schema([
         Course.self,
-        Problem.self
+        Problem.self,
     ])
 
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -80,4 +79,3 @@ struct CreateProblemWizard: View {
     return CreateProblemWizard(courseID: nil)
         .modelContainer(container)
 }
-

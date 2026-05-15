@@ -1,13 +1,13 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ProblemDetailView: View {
     @Environment(\.modelContext) private var modelContext
-    
+
     @Binding var path: [Home.Route]
-    
+
     let problem: Problem
-    
+
     @State private var isSolutionHidden: Bool = true
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var attemptNotes: String = ""
@@ -16,14 +16,16 @@ struct ProblemDetailView: View {
         case easy = "Easy"
         case medium = "Medium"
         case hard = "Hard"
-        var id: String { rawValue }
+        var id: String {
+            rawValue
+        }
     }
-    
+
     enum Route: Hashable {
         case showQuestion(Problem)
         case recordAttempt(Problem)
     }
-    
+
     var body: some View {
         VStack(spacing: 12) {
             switch problem {
@@ -45,7 +47,7 @@ struct ProblemDetailView: View {
             default:
                 ContentUnavailableView("Unrecognized problem", systemImage: "exclamationmark.triangle")
             }
-            
+
             Spacer()
         }
         .padding()
@@ -58,7 +60,7 @@ struct ProblemDetailView: View {
                     Label("Attempt", systemImage: "bolt")
                 }
                 .labelStyle(.titleAndIcon)
-                
+
                 Button(role: .destructive) {
                     // If the problem is currently being shown in the navigation path, pop it first
                     if let last = path.last {
@@ -90,10 +92,10 @@ struct ProblemDetailView: View {
 
 #Preview("ImageProblem") {
     @Previewable @State var path: [Home.Route] = []
-    
+
     let course = Course(title: "LeetCode", summary: "Grind it man", hyperlink: "https://www.leetcode.com")
     let problemSet = ProblemSet(course: course, name: "Week 0")
-    
+
     ProblemDetailView(
         path: $path,
         problem: ImageProblem(

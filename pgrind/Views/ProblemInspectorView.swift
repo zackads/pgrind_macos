@@ -5,13 +5,13 @@
 //  Created by Zack Adlington on 21/02/2026.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ProblemInspectorView: View {
     @Environment(\.modelContext) private var modelContext
     let problem: Problem
-    
+
     @State var solutionImagesData: [Data] = []
     @State var editing: Bool = false
 
@@ -33,7 +33,7 @@ struct ProblemInspectorView: View {
             } else {
                 Text("Not attempted")
             }
-            
+
             Divider()
 
             switch problem {
@@ -66,7 +66,6 @@ struct ProblemInspectorView: View {
         }
     }
 
-    @ViewBuilder
     private func imageProblemInspector(_ p: ImageProblem) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Group {
@@ -77,15 +76,15 @@ struct ProblemInspectorView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            
+
             Divider()
-            
+
             Group {
                 // Always show existing solution image if present
                 if let data = p.solutionImage, let img = NSImage(data: data) {
                     ExpandableImageView(image: img)
                 }
-                
+
                 // Show capture/editor UI when there is no existing solution, or when editing has begun
                 if p.solutionImage == nil || editing || !solutionImagesData.isEmpty {
                     if !solutionImagesData.isEmpty {
@@ -105,7 +104,7 @@ struct ProblemInspectorView: View {
                                 }
                                 .buttonStyle(.bordered)
                                 .controlSize(.large)
-                                
+
                                 Button(role: .destructive) {
                                     solutionImagesData.removeAll()
                                 } label: {
@@ -130,7 +129,7 @@ struct ProblemInspectorView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            
+
             if editing {
                 HStack(spacing: 12) {
                     Button {
@@ -140,11 +139,11 @@ struct ProblemInspectorView: View {
                             imagesToMerge.append(existing)
                         }
                         imagesToMerge.append(contentsOf: solutionImagesData)
-                        
+
                         if let mergedSolution = Screenshotter.mergeImagesVertically(from: imagesToMerge) {
                             p.solutionImage = mergedSolution
                         }
-                        
+
                         do {
                             try modelContext.save()
                             editing = false
@@ -156,7 +155,7 @@ struct ProblemInspectorView: View {
                         Label("Save", systemImage: "square.and.arrow.down")
                     }
                     .buttonStyle(.borderedProminent)
-                    
+
                     Button(role: .cancel) {
                         // Discard in-progress edits
                         editing = false
@@ -167,7 +166,7 @@ struct ProblemInspectorView: View {
                     .buttonStyle(.bordered)
                 }
             }
-            
+
             statsSection
         }
     }
@@ -195,9 +194,9 @@ private struct AttemptsHeatmap: View {
     let attempts: [Attempt]
     let onSelect: (Attempt) -> Void
 
-    // Adaptive grid: cells at least 44pt wide, growing as space allows
+    /// Adaptive grid: cells at least 44pt wide, growing as space allows
     private let columns: [GridItem] = [
-        GridItem(.adaptive(minimum: 20, maximum: 20), spacing: 8, alignment: .center)
+        GridItem(.adaptive(minimum: 20, maximum: 20), spacing: 8, alignment: .center),
     ]
 
     var body: some View {
@@ -211,7 +210,7 @@ private struct AttemptsHeatmap: View {
                         .aspectRatio(1, contentMode: .fit)
                         .clipShape(RoundedRectangle(cornerRadius: 4))
                         .accessibilityHint("Open attempt details")
-                        .help(attempt.createdDate.formatted(date: .abbreviated, time: .shortened)   )
+                        .help(attempt.createdDate.formatted(date: .abbreviated, time: .shortened))
                 }
                 .buttonStyle(.plain)
             }
@@ -254,7 +253,7 @@ private struct AttemptsHeatmap: View {
     let attempts: [Attempt] = [
         Attempt(problem: problem, difficulty: .hard),
         Attempt(problem: problem, difficulty: .medium),
-        Attempt(problem: problem, difficulty: .easy)
+        Attempt(problem: problem, difficulty: .easy),
     ]
     attempts.forEach(context.insert)
 
@@ -263,4 +262,3 @@ private struct AttemptsHeatmap: View {
     return ProblemInspectorView(problem: problem)
         .modelContainer(container)
 }
-

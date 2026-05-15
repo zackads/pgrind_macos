@@ -1,18 +1,18 @@
-import SwiftUI
 import AppKit
 import SwiftData
+import SwiftUI
 
 struct CreateImageProblemSolution: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
     @Binding var path: [CreateProblemWizard.Route]
     var imageProblem: ImageProblem
     let onSave: () -> Void
     let onCancel: () -> Void
-    
+
     @State var solutionImagesData: [Data] = []
-    
+
     var body: some View {
         ScrollView {
             Form {
@@ -22,7 +22,7 @@ struct CreateImageProblemSolution: View {
                     Text("For example, a worked solution from a .pdf of a past exam paper or problem sheet.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    
+
                     if !solutionImagesData.isEmpty {
                         VStack(spacing: 12) {
                             PiledImagesView(imagesData: solutionImagesData)
@@ -75,19 +75,18 @@ struct CreateImageProblemSolution: View {
                     onCancel()
                 }
             }
-            
+
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
                     if !(solutionImagesData == []), let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
                         imageProblem.solutionImage = mergedSolution
                     }
-                    
+
                     solutionImagesData = []
-                    
+
                     onSave()
                 }
             }
         }
-        
     }
 }

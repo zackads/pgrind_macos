@@ -5,14 +5,14 @@
 //  Created by Zack Adlington on 15/05/2026.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct SidebarView: View {
     @Binding var selectedSidebarItem: Home.SidebarItem?
     let courses: [Course]
     @Environment(\.modelContext) private var modelContext
-    @State private var coursePendingDeletion: Course? = nil
+    @State private var coursePendingDeletion: Course?
     @State private var showingDeleteConfirmation = false
     @State private var isHoveringCoursesHeader = false
     @State private var showingCreateCourse = false
@@ -36,7 +36,7 @@ struct SidebarView: View {
                         }
                     }
                     .onDeleteCommand {
-                        if case .course(let course) = selectedSidebarItem {
+                        if case let .course(course) = selectedSidebarItem {
                             modelContext.delete(course)
                             selectedSidebarItem = nil
                             try? modelContext.save()
@@ -66,16 +66,16 @@ struct SidebarView: View {
             "Delete this course?",
             isPresented: $showingDeleteConfirmation,
             titleVisibility: .visible,
-            presenting: coursePendingDeletion,
+            presenting: coursePendingDeletion
         ) { course in
             Button("Delete \"\(course.title)\" and all of its problems", role: .destructive) {
                 modelContext.delete(course)
-                if case .course(let selectedCourse) = selectedSidebarItem, selectedCourse.id == course.id {
+                if case let .course(selectedCourse) = selectedSidebarItem, selectedCourse.id == course.id {
                     selectedSidebarItem = nil
                 }
                 try? modelContext.save()
             }
-            Button("Cancel", role: .cancel) { }
+            Button("Cancel", role: .cancel) {}
         } message: { course in
             Text("This will permanently delete the course \"\(course.title)\", all of its problems and any review data. This action cannot be undone.")
         }
@@ -101,9 +101,17 @@ private struct CreateCourseSheet: View {
     @State private var summary: String = ""
     @State private var hyperlink: String = ""
 
-    private var trimmedTitle: String { title.trimmingCharacters(in: .whitespacesAndNewlines) }
-    private var trimmedSummary: String { summary.trimmingCharacters(in: .whitespacesAndNewlines) }
-    private var trimmedHyperlink: String { hyperlink.trimmingCharacters(in: .whitespacesAndNewlines) }
+    private var trimmedTitle: String {
+        title.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var trimmedSummary: String {
+        summary.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var trimmedHyperlink: String {
+        hyperlink.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -114,7 +122,7 @@ private struct CreateCourseSheet: View {
                 TextField(text: $summary, prompt: Text("E.g. 'Master the calculus of derivatives, integrals, coordinate systems, and infinite series.'"), axis: .vertical) {
                     Text("Description")
                 }
-                .lineLimit(3...5)
+                .lineLimit(3 ... 5)
                 TextField(text: $hyperlink, prompt: Text("E.g. 'https://ocw.mit.edu/courses/18-01-calculus-i-single-variable-calculus-fall-2020/'")) {
                     Text("Website URL")
                 }

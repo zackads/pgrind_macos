@@ -1,26 +1,26 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct SelectCourse: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     private enum Selection: Equatable {
         case none
         case existing(Course)
         case new
     }
-    
+
     @Binding var path: [CreateProblemWizard.Route]
     @Binding var course: Course?
     var onCancel: () -> Void
-    
+
     @State private var selection: Selection = .none
-    
+
     @Query(sort: \Course.createdDate, order: .reverse) private var courses: [Course]
-    
+
     var body: some View {
         Form {
-            ScrollView{
+            ScrollView {
                 ForEach(courses) { choice in
                     Button(action: {
                         selection = .existing(choice)
@@ -29,7 +29,7 @@ struct SelectCourse: View {
                             title: choice.title,
                             summary: choice.summary,
                             isSelected: {
-                                if case .existing(let c) = selection {
+                                if case let .existing(c) = selection {
                                     return c == choice
                                 } else {
                                     return false
@@ -39,7 +39,7 @@ struct SelectCourse: View {
                     }
                     .buttonStyle(.plain)
                 }
-                
+
                 Button(action: {
                     selection = .new
                 }) {
@@ -56,7 +56,7 @@ struct SelectCourse: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        
+
                         if selection == .new {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.title3)
@@ -89,7 +89,7 @@ struct SelectCourse: View {
                     switch selection {
                     case .new:
                         path.append(.createCourse)
-                    case .existing(let selectedCourse):
+                    case let .existing(selectedCourse):
                         course = selectedCourse
                         path.append(.selectProblemSet(selectedCourse))
                     case .none:
@@ -104,8 +104,8 @@ struct SelectCourse: View {
 
 private struct SelectCoursePreviewHost: View {
     @State private var path: [CreateProblemWizard.Route] = []
-    @State private var selectedCourse: Course? = nil
-    
+    @State private var selectedCourse: Course?
+
     var body: some View {
         NavigationStack(path: $path) {
             SelectCourse(path: $path, course: $selectedCourse, onCancel: {})
@@ -116,17 +116,17 @@ private struct SelectCoursePreviewHost: View {
 
 private struct SelectCourseWithCoursesPreviewHost: View {
     @State private var path: [CreateProblemWizard.Route] = []
-    @State private var selectedCourse: Course? = nil
-    
+    @State private var selectedCourse: Course?
+
     private let container: ModelContainer = {
         do {
             let container = try ModelContainer(
                 for: Course.self,
                 configurations: ModelConfiguration(isStoredInMemoryOnly: true)
             )
-            
+
             let context = container.mainContext
-            
+
             context.insert(
                 Course(
                     title: "MIT 18.01 | Single Variable Calculus | Fall 2020",
@@ -134,15 +134,15 @@ private struct SelectCourseWithCoursesPreviewHost: View {
                     hyperlink: "https://ocw.mit.edu/courses/18-01-calculus-i-single-variable-calculus-fall-2020/"
                 )
             )
-            
+
             context.insert(
                 Course(
                     title: "MIT 6.033 | Computer System Engineering | Spring 2018",
                     summary: "This class covers topics on the engineering of computer software and hardware systems. Topics include techniques for controlling complexity; strong modularity using client-server design, operating systems; performance, networks; naming; security and privacy; fault-tolerant systems, atomicity and coordination of concurrent activities, and recovery; impact of computer systems on society.",
-                    hyperlink:  "https://ocw.mit.edu/courses/6-033-computer-system-engineering-spring-2018/"
+                    hyperlink: "https://ocw.mit.edu/courses/6-033-computer-system-engineering-spring-2018/"
                 )
             )
-            
+
             context.insert(
                 Course(
                     title: "MIT 18.100A | Real Analysis | Fall 2020",
@@ -150,13 +150,13 @@ private struct SelectCourseWithCoursesPreviewHost: View {
                     hyperlink: "https://ocw.mit.edu/courses/18-100a-real-analysis-fall-2020/"
                 )
             )
-            
+
             return container
         } catch {
             fatalError("Failed to create preview container: \(error)")
         }
     }()
-    
+
     var body: some View {
         NavigationStack(path: $path) {
             SelectCourse(path: $path, course: $selectedCourse, onCancel: {})
@@ -173,4 +173,3 @@ private struct SelectCourseWithCoursesPreviewHost: View {
 #Preview("With courses") {
     SelectCourseWithCoursesPreviewHost()
 }
-

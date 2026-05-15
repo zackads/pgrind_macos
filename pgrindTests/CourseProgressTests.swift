@@ -1,7 +1,7 @@
 import Foundation
-import Testing
-import SwiftData
 @testable import pgrind
+import SwiftData
+import Testing
 
 @MainActor
 struct CourseProgressTests {
@@ -90,8 +90,8 @@ struct CourseProgressTests {
         let problem = Problem(problemSet: set)
         container.mainContext.insert(problem)
 
-        let earlier = Date(timeIntervalSince1970: 1_000)
-        let later = Date(timeIntervalSince1970: 2_000)
+        let earlier = Date(timeIntervalSince1970: 1000)
+        let later = Date(timeIntervalSince1970: 2000)
         container.mainContext.insert(
             Attempt(problem: problem, difficulty: .hard, timestamp: earlier)
         )

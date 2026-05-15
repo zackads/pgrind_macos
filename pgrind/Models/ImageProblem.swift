@@ -8,7 +8,7 @@ final class ImageProblem: Problem {
     var questionImage: Data
     @Attribute(.externalStorage)
     var solutionImage: Data?
-    
+
     init(problemSet: ProblemSet, questionImage: Data, solutionImage: Data? = nil, createdDate: Date = .now) {
         self.questionImage = questionImage
         self.solutionImage = solutionImage

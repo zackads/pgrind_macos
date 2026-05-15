@@ -5,8 +5,8 @@
 //  Created by Zack Adlington on 01/02/2026.
 //
 
-import Foundation
 import AppKit
+import Foundation
 
 class Screenshotter {
     @MainActor
@@ -31,7 +31,7 @@ class Screenshotter {
             process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
             process.arguments = [
                 "-i", // interactive selection, similar to Cmd + Shift + 4
-                tempURL.path
+                tempURL.path,
             ]
             process.terminationHandler = { _ in
                 let result: Data?
@@ -62,7 +62,7 @@ class Screenshotter {
 
         return capturedData
     }
-    
+
     static func mergeImagesVertically(from imagesData: [Data]) -> Data? {
         let nsImages: [NSImage] = imagesData.compactMap { NSImage(data: $0) }
         guard !nsImages.isEmpty else { return nil }
@@ -123,5 +123,4 @@ class Screenshotter {
         guard let tiff = image.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) else { return nil }
         return rep
     }
-
 }

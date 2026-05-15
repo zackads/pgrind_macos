@@ -14,11 +14,11 @@ extension CGImage {
                 nil
             )
         else { return nil }
-        
+
         CGImageDestinationAddImage(destination, self, nil)
-        
+
         guard CGImageDestinationFinalize(destination) else { return nil }
-        
+
         return data as Data
     }
 }

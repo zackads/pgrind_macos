@@ -1,13 +1,13 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ExpandableImageView: View {
     let image: NSImage
     var maxSize: CGSize? = CGSize(width: 180, height: 120)
-    
+
     @State private var isExpanded: Bool = false
     @State private var isHovering: Bool = false
-    
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             Image(nsImage: image)
@@ -53,10 +53,10 @@ struct ExpandableImageView: View {
 struct ExpandedImageView: View {
     let image: NSImage
     @Binding var isExpanded: Bool
-    
+
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
-    
+
     var body: some View {
         return VStack(spacing: 16) {
             ScrollView([.horizontal, .vertical]) {
@@ -82,7 +82,7 @@ struct ExpandedImageView: View {
                     }
             }
             .padding()
-            
+
             HStack {
                 Spacer()
                 Button {

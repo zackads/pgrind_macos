@@ -1,6 +1,6 @@
-import SwiftUI
-import SwiftData
 import AppKit
+import SwiftData
+import SwiftUI
 
 private enum ViewMode {
     case thumbnail
@@ -13,31 +13,32 @@ struct Home: View {
         case viewProblem(Problem)
         case recordAttempt(Problem)
     }
-    
+
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
-    
+
     @Query(sort: \Course.createdDate, order: .forward) private var courses: [Course]
     @Query(sort: \ProblemSet.createdDate, order: .forward) private var problemSets: [ProblemSet]
     @Query(sort: \Problem.createdDate, order: .forward) private var problems: [Problem]
     @Query(sort: \Deck.createdDate, order: .forward) private var decks: [Deck]
-    
+
     @State private var path: [Route] = []
-    
+
     enum SidebarItem: Hashable {
         case course(Course)
     }
+
     @State private var selectedSidebarItem: SidebarItem?
     var selectedCourse: Course? {
-        if case .course(let course) = selectedSidebarItem { return course }
+        if case let .course(course) = selectedSidebarItem { return course }
         return nil
     }
-    
+
     @State private var selectedProblem: Problem?
-    
+
     @State private var showInspector = false
-    @State private var viewMode: ViewMode = ViewMode.heatmap
-    
+    @State private var viewMode: ViewMode = .heatmap
+
     var body: some View {
         NavigationSplitView {
             SidebarView(selectedSidebarItem: $selectedSidebarItem, courses: courses)
@@ -45,7 +46,7 @@ struct Home: View {
             NavigationStack(path: $path) {
                 Group {
                     switch selectedSidebarItem {
-                    case .course(let course):
+                    case let .course(course):
                         CourseView(path: $path, course: course)
                     case nil:
                         ContentUnavailableView("Select a course", systemImage: "books.vertical")
@@ -76,7 +77,7 @@ struct Home: View {
             selectedProblem = nil
         }
     }
-    
+
     private func inspector(problemSet: ProblemSet?) -> some View {
         Group {
             if let problemSet {
@@ -132,22 +133,22 @@ struct Home: View {
     context.insert(analysis)
     context.insert(algorithms)
     try? context.save()
-    
+
     // Sample ProblemSets
     let ps1 = ProblemSet(course: analysis, name: "Week 1 problem sheet")
     let ps2 = ProblemSet(course: algorithms, name: "Week 2 problem sheet")
     context.insert(ps1)
     context.insert(ps2)
     try? context.save()
-    
+
     let imageProblem = ImageProblem(
         problemSet: ps1,
         questionImage: Data(),
-        solutionImage: Data(),
+        solutionImage: Data()
     )
     context.insert(imageProblem)
     try? context.save()
-    
+
     let a3 = Attempt(problem: imageProblem, difficulty: .hard)
     let a4 = Attempt(problem: imageProblem, difficulty: .hard)
     context.insert(a3)

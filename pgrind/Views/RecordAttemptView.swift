@@ -1,15 +1,15 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct RecordAttemptView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
-    
+
     @Binding var path: [Home.Route]
     var problem: Problem
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var notes: String = ""
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -25,14 +25,14 @@ struct RecordAttemptView: View {
             HStack {
                 Spacer()
                 Picker("", selection: $selectedDifficulty) {
-                    ForEach(Difficulty.allCases.filter { $0 != .notAttempted}, id: \.self) { d in
+                    ForEach(Difficulty.allCases.filter { $0 != .notAttempted }, id: \.self) { d in
                         Text(String(describing: d)).tag(d)
                     }
                 }
                 .pickerStyle(.segmented)
                 Spacer()
             }
-            
+
             Text("Notes").font(.headline)
             TextEditor(text: $notes)
                 .frame(minHeight: 120)
@@ -56,7 +56,7 @@ struct RecordAttemptView: View {
                             notes: notes
                         )
                     )
-                    
+
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
@@ -108,7 +108,7 @@ struct RecordImageProblemAttemptView: View {
     let problem = ImageProblem(
         problemSet: problemSet,
         questionImage: Data(),
-        solutionImage: Data(),
+        solutionImage: Data()
     )
     RecordAttemptView(path: .constant([]), problem: problem)
 }

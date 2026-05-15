@@ -1,5 +1,5 @@
 //
-//  PgrindSchemaV1.swift
+//  SchemaV1.swift
 //  pgrind
 //
 //  Created by Zack Adlington on 21/02/2026.
@@ -10,15 +10,17 @@ import SwiftData
 
 enum SchemaV1: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
-    static var models: [any PersistentModel.Type] { [
-        Attempt.self,
-        Course.self,
-        ImageProblem.self,
-        Problem.self,
-        ProblemSet.self,
-        ScreenshotItem.self,
-        WebpageProblem.self
-    ] }
+    static var models: [any PersistentModel.Type] {
+        [
+            Attempt.self,
+            Course.self,
+            ImageProblem.self,
+            Problem.self,
+            ProblemSet.self,
+            ScreenshotItem.self,
+            WebpageProblem.self,
+        ]
+    }
 }
 
 @available(macOS 26.0, *)

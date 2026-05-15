@@ -9,10 +9,12 @@ import Foundation
 import SwiftData
 
 enum MigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] {[
-        SchemaV1.self,
-        SchemaV2.self,
-    ]}
+    static var schemas: [any VersionedSchema.Type] {
+        [
+            SchemaV1.self,
+            SchemaV2.self,
+        ]
+    }
 
     static var stages: [MigrationStage] {
         [migrateV1toV2]

@@ -3,7 +3,7 @@ import SwiftUI
 struct StudyProblemView: View {
     @Binding var path: [ProblemDetailView.Route]
     let problem: Problem
-    
+
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var attemptNotes: String = ""
 
@@ -11,9 +11,11 @@ struct StudyProblemView: View {
         case easy = "Easy"
         case medium = "Medium"
         case hard = "Hard"
-        var id: String { rawValue }
+        var id: String {
+            rawValue
+        }
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 12) {
@@ -54,7 +56,7 @@ struct StudyProblemView: View {
 #Preview("ImageProblem") {
     let course = Course(title: "LeetCode", summary: "Grind it man", hyperlink: "https://www.leetcode.com")
     let problemSet = ProblemSet(course: course, name: "Week 0")
-    
+
     StudyProblemView(
         path: .constant([]),
         problem: ImageProblem(

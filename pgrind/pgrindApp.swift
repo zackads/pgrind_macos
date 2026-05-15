@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct pgrindApp: App {
@@ -17,7 +17,8 @@ struct pgrindApp: App {
             return try ModelContainer(
                 for: schema,
                 migrationPlan: MigrationPlan.self,
-                configurations: [modelConfiguration])
+                configurations: [modelConfiguration]
+            )
         } catch {
             print("ModelContainer init failed:", String(reflecting: error))
             fatalError("Could not create ModelContainer: \(error)")
