@@ -13,7 +13,7 @@ struct CourseView: View {
     var course: Course
 
     @Environment(\.modelContext) private var modelContext
-    @State private var showingCreateProblem = false
+    @State private var showingAddProblemSet = false
     @State private var renamingProblemSet: ProblemSet?
     @State private var renameText: String = ""
     @State private var deletingProblemSet: ProblemSet?
@@ -75,15 +75,15 @@ struct CourseView: View {
         .navigationTitle(course.title)
         .toolbar {
             Button {
-                showingCreateProblem = true
+                showingAddProblemSet = true
             } label: {
-                Label("New", systemImage: "plus")
+                Label("Add problems", systemImage: "rectangle.stack.badge.plus")
             }
             .keyboardShortcut("n", modifiers: [.command])
             .labelStyle(.titleAndIcon)
         }
-        .sheet(isPresented: $showingCreateProblem) {
-            CreateProblemWizard(courseID: course.persistentModelID)
+        .sheet(isPresented: $showingAddProblemSet) {
+            AddProblemSetView(course: course)
         }
         .alert("Rename Problem Set", isPresented: isRenaming) {
             TextField("Name", text: $renameText)
