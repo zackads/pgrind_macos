@@ -2,7 +2,7 @@ import SwiftUI
 
 struct StudyProblemView: View {
     @Binding var path: [ProblemDetailView.Route]
-    let problem: Problem
+    let problem: ImageProblem
 
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var attemptNotes: String = ""
@@ -19,15 +19,10 @@ struct StudyProblemView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 12) {
-                switch problem {
-                case let ip as ImageProblem:
-                    if let problemImage = NSImage(data: ip.questionImage) {
-                        Image(nsImage: problemImage)
-                    } else {
-                        ContentUnavailableView("Missing question image", systemImage: "photo")
-                    }
-                default:
-                    ContentUnavailableView("Unrecognized problem", systemImage: "exclamationmark.triangle")
+                if let problemImage = NSImage(data: problem.questionImage) {
+                    Image(nsImage: problemImage)
+                } else {
+                    ContentUnavailableView("Missing question image", systemImage: "photo")
                 }
                 HStack {
                     Spacer()

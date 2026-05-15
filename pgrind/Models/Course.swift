@@ -21,7 +21,7 @@ final class Course {
     @Relationship(deleteRule: .cascade, inverse: \ProblemSet.course)
     var problemSets: [ProblemSet] = []
 
-    var problems: [Problem] {
+    var problems: [ImageProblem] {
         return problemSets.flatMap(\.problems)
     }
 

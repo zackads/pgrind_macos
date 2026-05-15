@@ -31,7 +31,7 @@ class Screenshotter {
             process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
             process.arguments = [
                 "-i", // interactive selection, similar to Cmd + Shift + 4
-                tempURL.path,
+                tempURL.path
             ]
             process.terminationHandler = { _ in
                 let result: Data?

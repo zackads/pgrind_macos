@@ -6,7 +6,7 @@ struct ProblemDetailView: View {
 
     @Binding var path: [Home.Route]
 
-    let problem: Problem
+    let problem: ImageProblem
 
     @State private var isSolutionHidden: Bool = true
     @State private var selectedDifficulty: Difficulty = .medium
@@ -22,30 +22,25 @@ struct ProblemDetailView: View {
     }
 
     enum Route: Hashable {
-        case showQuestion(Problem)
-        case recordAttempt(Problem)
+        case showQuestion(ImageProblem)
+        case recordAttempt(ImageProblem)
     }
 
     var body: some View {
         VStack(spacing: 12) {
-            switch problem {
-            case let ip as ImageProblem:
-                Image(systemName: "photo")
-                Group {
-                    if let problemImage = NSImage(data: ip.questionImage) {
-                        ScrollView([.horizontal, .vertical]) {
-                            Image(nsImage: problemImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: 400)
-                    } else {
-                        Text("Missing problem image")
+            Image(systemName: "photo")
+            Group {
+                if let problemImage = NSImage(data: problem.questionImage) {
+                    ScrollView([.horizontal, .vertical]) {
+                        Image(nsImage: problemImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: 400)
+                } else {
+                    Text("Missing problem image")
                 }
-            default:
-                ContentUnavailableView("Unrecognized problem", systemImage: "exclamationmark.triangle")
             }
 
             Spacer()

@@ -113,6 +113,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 147DF5082F1FD35800650E88 /* Build configuration list for PBXNativeTarget "pgrind" */;
 			buildPhases = (
+				14FF002000000000000000B0 /* Run SwiftLint & SwiftFormat */,
 				147DF4F92F1FD35800650E88 /* Sources */,
 				147DF4FA2F1FD35800650E88 /* Frameworks */,
 				147DF4FB2F1FD35800650E88 /* Resources */,
@@ -221,6 +222,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		14FF002000000000000000B0 /* Run SwiftLint & SwiftFormat */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run SwiftLint & SwiftFormat";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if command -v swiftformat >/dev/null; then\n  swiftformat \"$SRCROOT\"\nelse\n  echo \"warning: swiftformat not installed (brew install swiftformat)\"\nfi\nif command -v swiftlint >/dev/null; then\n  swiftlint --fix --quiet\n  swiftlint --quiet\nelse\n  echo \"warning: swiftlint not installed (brew install swiftlint)\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1461A5BC2F2FB6EA0027CD64 /* Sources */ = {

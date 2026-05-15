@@ -10,8 +10,8 @@ private enum ViewMode {
 struct Home: View {
     enum Route: Hashable {
         case viewCourse(Course)
-        case viewProblem(Problem)
-        case recordAttempt(Problem)
+        case viewProblem(ImageProblem)
+        case recordAttempt(ImageProblem)
     }
 
     @Environment(\.modelContext) private var modelContext
@@ -19,8 +19,7 @@ struct Home: View {
 
     @Query(sort: \Course.createdDate, order: .forward) private var courses: [Course]
     @Query(sort: \ProblemSet.createdDate, order: .forward) private var problemSets: [ProblemSet]
-    @Query(sort: \Problem.createdDate, order: .forward) private var problems: [Problem]
-    @Query(sort: \Deck.createdDate, order: .forward) private var decks: [Deck]
+    @Query(sort: \ImageProblem.createdDate, order: .forward) private var problems: [ImageProblem]
 
     @State private var path: [Route] = []
 
@@ -34,7 +33,7 @@ struct Home: View {
         return nil
     }
 
-    @State private var selectedProblem: Problem?
+    @State private var selectedProblem: ImageProblem?
 
     @State private var showInspector = false
     @State private var viewMode: ViewMode = .heatmap
@@ -82,20 +81,15 @@ struct Home: View {
         Group {
             if let problemSet {
                 List(problemSet.problems, selection: $selectedProblem) { problem in
-                    switch problem {
-                    case let p as ImageProblem:
-                        HStack {
-                            Image(systemName: "photo")
-                            if let problemImage = NSImage(data: p.questionImage) {
-                                ExpandableImageView(image: problemImage)
-                            } else {
-                                Text("Missing problem image")
-                            }
+                    HStack {
+                        Image(systemName: "photo")
+                        if let problemImage = NSImage(data: problem.questionImage) {
+                            ExpandableImageView(image: problemImage)
+                        } else {
+                            Text("Missing problem image")
                         }
-                        .tag(problem)
-                    default:
-                        EmptyView()
                     }
+                    .tag(problem)
                 }
                 .navigationTitle(problemSet.name)
             } else {
@@ -109,9 +103,8 @@ struct Home: View {
     let schema = Schema([
         Course.self,
         ProblemSet.self,
-        Problem.self,
         ImageProblem.self,
-        Attempt.self,
+        Attempt.self
     ])
 
     let config = ModelConfiguration(isStoredInMemoryOnly: true)

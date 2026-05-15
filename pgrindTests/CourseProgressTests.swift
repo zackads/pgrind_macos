@@ -9,7 +9,6 @@ struct CourseProgressTests {
         let schema = Schema([
             Course.self,
             ProblemSet.self,
-            Problem.self,
             ImageProblem.self,
             Attempt.self,
         ])
@@ -26,7 +25,7 @@ struct CourseProgressTests {
         let set = ProblemSet(course: course, name: "Set 1")
         context.insert(set)
         for difficulty in problemDifficulties {
-            let problem = Problem(problemSet: set)
+            let problem = ImageProblem(problemSet: set, questionImage: Data())
             context.insert(problem)
             if let difficulty {
                 let attempt = Attempt(problem: problem, difficulty: difficulty)
@@ -87,7 +86,7 @@ struct CourseProgressTests {
         container.mainContext.insert(course)
         let set = ProblemSet(course: course, name: "S")
         container.mainContext.insert(set)
-        let problem = Problem(problemSet: set)
+        let problem = ImageProblem(problemSet: set, questionImage: Data())
         container.mainContext.insert(problem)
 
         let earlier = Date(timeIntervalSince1970: 1000)
@@ -112,8 +111,8 @@ struct CourseProgressTests {
         container.mainContext.insert(setA)
         container.mainContext.insert(setB)
 
-        let p1 = Problem(problemSet: setA)
-        let p2 = Problem(problemSet: setB)
+        let p1 = ImageProblem(problemSet: setA, questionImage: Data())
+        let p2 = ImageProblem(problemSet: setB, questionImage: Data())
         container.mainContext.insert(p1)
         container.mainContext.insert(p2)
         container.mainContext.insert(Attempt(problem: p1, difficulty: .easy))

@@ -24,8 +24,7 @@ struct CreateProblemWizard: View {
     @State private var selectedCourse: Course?
     @State private var selectedProblemSet: ProblemSet?
     @State private var selectedProblemKind: ProblemKind?
-    @State private var imageProblem: Problem?
-    @State private var websiteProblem: Problem?
+    @State private var imageProblem: ImageProblem?
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -62,7 +61,7 @@ struct CreateProblemWizard: View {
 #Preview {
     let schema = Schema([
         Course.self,
-        Problem.self,
+        ImageProblem.self,
     ])
 
     let config = ModelConfiguration(isStoredInMemoryOnly: true)

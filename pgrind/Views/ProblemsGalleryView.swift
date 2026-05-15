@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ProblemsGalleryView: View {
-    let problems: [Problem]
-    var onSelect: (Problem) -> Void
+    let problems: [ImageProblem]
+    var onSelect: (ImageProblem) -> Void
     private let thumbSizeY: CGFloat = 300
     private var columns: [GridItem] {
         [GridItem(.adaptive(minimum: 350), spacing: 12)]
@@ -31,7 +31,7 @@ struct ProblemsGalleryView: View {
 }
 
 private struct GalleryCell: View {
-    let problem: Problem
+    let problem: ImageProblem
     let sizeY: CGFloat
     @State private var availableWidth: CGFloat = 0
 
@@ -47,20 +47,14 @@ private struct GalleryCell: View {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(.quaternary)
 
-                switch problem {
-                case let p as ImageProblem:
-                    if let img = NSImage(data: p.questionImage) {
-                        Image(nsImage: img)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    } else {
-                        Image(systemName: "photo")
-                            .imageScale(.large)
-                    }
-                default:
-                    Image(systemName: "questionmark")
+                if let img = NSImage(data: problem.questionImage) {
+                    Image(nsImage: img)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else {
+                    Image(systemName: "photo")
                         .imageScale(.large)
                 }
             }
@@ -156,7 +150,7 @@ private struct GalleryCell: View {
         questionImage: Data(), solutionImage: nil, createdDate: Date()
     )
 
-    return ProblemsGalleryView(
+    ProblemsGalleryView(
         problems: [imageProblem]
     ) { _ in }
         .padding()

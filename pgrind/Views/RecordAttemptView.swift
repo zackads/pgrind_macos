@@ -6,7 +6,7 @@ struct RecordAttemptView: View {
     @Environment(\.dismiss) var dismiss
 
     @Binding var path: [Home.Route]
-    var problem: Problem
+    var problem: ImageProblem
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var notes: String = ""
 
@@ -14,12 +14,9 @@ struct RecordAttemptView: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Spacer()
-                switch problem {
-                case let ip as ImageProblem:
-                    RecordImageProblemAttemptView(problem: ip)
-                default:
-                    ContentUnavailableView("Unrecognized problem", systemImage: "exclamationmark.triangle")
-                }
+
+                RecordImageProblemAttemptView(problem: problem)
+
                 Spacer()
             }
             HStack {

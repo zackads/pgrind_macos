@@ -44,18 +44,21 @@ struct SidebarView: View {
                     }
                 } header: {
                     HStack {
-                        Label("Courses", systemImage: "books.vertical")
+                        Text("Courses")
                         Spacer()
                         Button {
                             showingCreateCourse = true
                         } label: {
                             Image(systemName: "plus")
+                                .frame(width: 20, height: 20)
                         }
                         .buttonStyle(.plain)
                         .help("Add a new course")
                         .opacity(isHoveringCoursesHeader ? 1 : 0)
+                        .allowsHitTesting(isHoveringCoursesHeader)
                     }
-//                    .contentShape(Rectangle())
+                    .padding(.trailing, 8)
+                    .contentShape(Rectangle())
                     .onHover { hovering in
                         isHoveringCoursesHeader = hovering
                     }
@@ -90,67 +93,5 @@ struct SidebarView: View {
             Spacer()
             Pill(text: "\(Int(course.progress.proportionAttempted * 100))%")
         }
-    }
-}
-
-private struct CreateCourseSheet: View {
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
-
-    @State private var title: String = ""
-    @State private var summary: String = ""
-    @State private var hyperlink: String = ""
-
-    private var trimmedTitle: String {
-        title.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var trimmedSummary: String {
-        summary.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var trimmedHyperlink: String {
-        hyperlink.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Form {
-                TextField(text: $title, prompt: Text("E.g. 'MIT 18.01 | Single Variable Calculus | Fall 2020'")) {
-                    Text("Name")
-                }
-                TextField(text: $summary, prompt: Text("E.g. 'Master the calculus of derivatives, integrals, coordinate systems, and infinite series.'"), axis: .vertical) {
-                    Text("Description")
-                }
-                .lineLimit(3 ... 5)
-                TextField(text: $hyperlink, prompt: Text("E.g. 'https://ocw.mit.edu/courses/18-01-calculus-i-single-variable-calculus-fall-2020/'")) {
-                    Text("Website URL")
-                }
-            }
-            .formStyle(.grouped)
-
-            HStack {
-                Spacer()
-                Button("Cancel", role: .cancel) {
-                    dismiss()
-                }
-                .keyboardShortcut(.cancelAction)
-                Button("Create") {
-                    let newCourse = Course(
-                        title: trimmedTitle,
-                        summary: trimmedSummary,
-                        hyperlink: trimmedHyperlink
-                    )
-                    modelContext.insert(newCourse)
-                    try? modelContext.save()
-                    dismiss()
-                }
-                .keyboardShortcut(.defaultAction)
-                .disabled(trimmedTitle.isEmpty || trimmedSummary.isEmpty || trimmedHyperlink.isEmpty)
-            }
-            .padding()
-        }
-        .frame(minWidth: 480, minHeight: 320)
-        .navigationTitle("Create a new course")
     }
 }

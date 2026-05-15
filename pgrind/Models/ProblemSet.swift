@@ -10,8 +10,8 @@ final class ProblemSet {
 
     var createdDate: Date = Date()
 
-    @Relationship(deleteRule: .cascade, inverse: \Problem.problemSet)
-    var problems: [Problem] = []
+    @Relationship(deleteRule: .cascade, inverse: \ImageProblem.problemSet)
+    var problems: [ImageProblem] = []
 
     @MainActor
     var lastAddedTo: Date {

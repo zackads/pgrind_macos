@@ -4,13 +4,7 @@ import SwiftUI
 @main
 struct pgrindApp: App {
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Attempt.self,
-            Course.self,
-            ProblemSet.self,
-            Problem.self,
-            ImageProblem.self,
-        ])
+        let schema = Schema(versionedSchema: SchemaV1.self)
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {

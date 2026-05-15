@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ProblemInspectorView: View {
     @Environment(\.modelContext) private var modelContext
-    let problem: Problem
+    let problem: ImageProblem
 
     @State var solutionImagesData: [Data] = []
     @State var editing: Bool = false
@@ -36,13 +36,7 @@ struct ProblemInspectorView: View {
 
             Divider()
 
-            switch problem {
-            case let p as ImageProblem:
-                imageProblemInspector(p)
-
-            default:
-                ContentUnavailableView("Unrecognized problem type", systemImage: "exclamationmark.triangle")
-            }
+            imageProblemInspector(problem)
 
             Spacer(minLength: 0)
         }
@@ -51,19 +45,11 @@ struct ProblemInspectorView: View {
     }
 
     private var iconSystemName: String {
-        switch problem {
-        case _ as ImageProblem: return "photo"
-        default: return "questionmark"
-        }
+        return "photo"
     }
 
     private var titleText: String {
-        switch problem {
-        case _ as ImageProblem:
-            return "Image problem"
-        default:
-            return "Problem"
-        }
+        return "Problem"
     }
 
     private func imageProblemInspector(_ p: ImageProblem) -> some View {
@@ -196,7 +182,7 @@ private struct AttemptsHeatmap: View {
 
     /// Adaptive grid: cells at least 44pt wide, growing as space allows
     private let columns: [GridItem] = [
-        GridItem(.adaptive(minimum: 20, maximum: 20), spacing: 8, alignment: .center),
+        GridItem(.adaptive(minimum: 20, maximum: 20), spacing: 8, alignment: .center)
     ]
 
     var body: some View {
@@ -253,7 +239,7 @@ private struct AttemptsHeatmap: View {
     let attempts: [Attempt] = [
         Attempt(problem: problem, difficulty: .hard),
         Attempt(problem: problem, difficulty: .medium),
-        Attempt(problem: problem, difficulty: .easy),
+        Attempt(problem: problem, difficulty: .easy)
     ]
     attempts.forEach(context.insert)
 
