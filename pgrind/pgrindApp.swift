@@ -30,7 +30,7 @@ struct pgrindApp: App {
         }
         .modelContainer(sharedModelContainer)
 
-        WindowGroup(id: "create-problem", for: PersistentIdentifier?.self) { $courseID in
+        WindowGroup(id: "create-problem", for: PersistentIdentifier.self) { $courseID in
             if let courseID {
                 CreateProblemWizard(courseID: courseID)
             } else {

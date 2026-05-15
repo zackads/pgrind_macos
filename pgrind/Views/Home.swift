@@ -7,7 +7,7 @@ private enum ViewMode {
     case heatmap
 }
 
-struct BrowseView: View {
+struct Home: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
     
@@ -40,18 +40,7 @@ struct BrowseView: View {
                 Group {
                     switch selectedSidebarItem {
                     case .course(let course):
-                        List(course.problemSets) { ps in
-                            VStack(alignment: .leading) {
-                                Text(ps.name)
-                                    .font(.title3)
-                                ProblemsGalleryView(problems: ps.problems) { problem in
-                                    selectedProblem = problem
-                                    path.append(.showQuestion(problem))
-                                }
-                            }
-                            .tag(ps)
-                        }
-                        .navigationTitle(course.title)
+                        CourseView(path: $path, course: course)
                     case nil:
                         ContentUnavailableView("Select a course", systemImage: "books.vertical")
                     }
@@ -77,19 +66,6 @@ struct BrowseView: View {
         }
         .onChange(of: selectedSidebarItem) { _, _ in
             selectedProblem = nil
-        }
-        .toolbar {
-            ToolbarItemGroup() {
-                if path.isEmpty {
-                    Button {
-                        openWindow(id: "create-problem", value: selectedCourse?.persistentModelID)
-                    } label: {
-                        Label("New", systemImage: "plus")
-                    }
-                    .keyboardShortcut("n", modifiers: [.command])
-                    .labelStyle(.titleAndIcon)
-                }
-            }
         }
     }
     
@@ -170,6 +146,6 @@ struct BrowseView: View {
     context.insert(a4)
     try? context.save()
 
-    return BrowseView()
+    return Home()
         .modelContainer(container)
 }
