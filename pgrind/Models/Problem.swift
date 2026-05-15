@@ -2,7 +2,6 @@ import Foundation
 import SwiftData
 import Combine
 
-@MainActor
 @Model
 class Problem: CustomStringConvertible, Comparable {
     static func < (lhs: Problem, rhs: Problem) -> Bool {
@@ -20,6 +19,10 @@ class Problem: CustomStringConvertible, Comparable {
     
     @Relationship(deleteRule: .cascade, inverse: \Attempt.problem)
     var attempts: [Attempt] = []
+    
+    var attempted: Bool {
+        !attempts.isEmpty
+    }
     
     init(problemSet: ProblemSet, createdDate: Date = Date()) {
         self.problemSet = problemSet

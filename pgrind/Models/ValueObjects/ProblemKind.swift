@@ -1,3 +1,3 @@
-enum ProblemKind: String, Codable, CaseIterable {
+nonisolated enum ProblemKind: String, Codable, CaseIterable {
     case image
 }

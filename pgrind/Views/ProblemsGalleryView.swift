@@ -38,8 +38,8 @@ private struct GalleryCell: View {
     var body: some View {
         let width = max(availableWidth, 1) // avoid divide-by-zero during initial layout
         let imageHeight = computedHeight(for: width)
-        let pillHeight: CGFloat = 22
         let vSpacing: CGFloat = 6
+        let pillHeight: CGFloat = 22
         let totalHeight = imageHeight + vSpacing + pillHeight
 
         VStack(alignment: .center, spacing: vSpacing) {
@@ -68,15 +68,13 @@ private struct GalleryCell: View {
             .frame(height: imageHeight)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
-            Text(statusText)
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundStyle(statusForeground)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(statusBackground, in: Capsule())
-                .lineLimit(1)
-                .frame(height: pillHeight)
+            Pill(
+                text: statusText,
+                foreground: statusForeground,
+                background: statusBackground,
+                height: pillHeight
+            )
+            
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: totalHeight, alignment: .top)

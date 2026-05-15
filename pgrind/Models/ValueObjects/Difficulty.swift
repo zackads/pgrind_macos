@@ -1,4 +1,4 @@
-enum Difficulty: String, Codable, CaseIterable, CustomStringConvertible {
+nonisolated enum Difficulty: String, Codable, CaseIterable, CustomStringConvertible {
     case notAttempted
     case easy
     case medium

@@ -21,7 +21,7 @@ struct SidebarView: View {
                 Section {
                     ForEach(courses) { course in
                         HStack {
-                            Text(course.title)
+                            courseRow(course)
                         }
                         .tag(BrowseView.SidebarItem.course(course))
                         .contextMenu {
@@ -61,6 +61,14 @@ struct SidebarView: View {
             Button("Cancel", role: .cancel) { }
         } message: { course in
             Text("This will permanently delete the course \"\(course.title)\", all of its problems and any review data. This action cannot be undone.")
+        }
+    }
+    
+    private func courseRow(_ course: Course) -> some View {
+        return HStack {
+            Text(course.title)
+            Spacer()
+            Pill(text: "\(Int(course.progress.proportionAttempted * 100))%")
         }
     }
 }
