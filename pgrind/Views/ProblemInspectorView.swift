@@ -87,9 +87,13 @@ struct ProblemInspectorView: View {
             Divider()
             
             Group {
+                // Always show existing solution image if present
                 if let data = p.solutionImage, let img = NSImage(data: data) {
                     ExpandableImageView(image: img)
-                } else {
+                }
+
+                // Show capture/editor UI when there is no existing solution, or when editing has begun
+                if p.solutionImage == nil || editing || !solutionImagesData.isEmpty {
                     if !solutionImagesData.isEmpty {
                         VStack(spacing: 12) {
                             PiledImagesView(imagesData: solutionImagesData)
@@ -99,6 +103,7 @@ struct ProblemInspectorView: View {
                                     Task { @MainActor in
                                         if let newData = await Screenshotter.takeScreenshot() {
                                             solutionImagesData.append(newData)
+                                            editing = true
                                         }
                                     }
                                 } label: {
@@ -125,7 +130,7 @@ struct ProblemInspectorView: View {
                                 }
                             }
                         } label: {
-                            Label("Take a screenshot", systemImage: "camera.viewfinder")
+                            Label(p.solutionImage == nil ? "Take a screenshot" : "Add a screenshot", systemImage: "camera.viewfinder")
                         }
                     }
                 }
@@ -133,12 +138,19 @@ struct ProblemInspectorView: View {
             .frame(maxWidth: .infinity)
             
             if editing {
-                Button {
-                    do {
-                        if let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
+                HStack(spacing: 12) {
+                    Button {
+                        // Merge existing solution image (if any) with new screenshots, top-to-bottom
+                        var imagesToMerge: [Data] = []
+                        if let existing = p.solutionImage {
+                            imagesToMerge.append(existing)
+                        }
+                        imagesToMerge.append(contentsOf: solutionImagesData)
+
+                        if let mergedSolution = Screenshotter.mergeImagesVertically(from: imagesToMerge) {
                             p.solutionImage = mergedSolution
                         }
-                        
+
                         do {
                             try modelContext.save()
                             editing = false
@@ -146,9 +158,19 @@ struct ProblemInspectorView: View {
                         } catch {
                             print("Failed to save model context: \(error)")
                         }
+                    } label: {
+                        Label("Save", systemImage: "square.and.arrow.down")
                     }
-                } label: {
-                    Label("Save", systemImage: "")
+                    .buttonStyle(.borderedProminent)
+
+                    Button(role: .cancel) {
+                        // Discard in-progress edits
+                        editing = false
+                        solutionImagesData = []
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
+                    }
+                    .buttonStyle(.bordered)
                 }
             }
 
@@ -285,3 +307,4 @@ private struct AttemptsHeatmap: View {
     return ProblemInspectorView(problem: problem)
         .modelContainer(container)
 }
+
