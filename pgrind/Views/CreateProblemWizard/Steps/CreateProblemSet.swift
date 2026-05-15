@@ -39,7 +39,7 @@ struct CreateProblemSet: View {
                     
                     selectedProblemSet = newProblemSet
                     
-                    path.append(.selectProblemKind(newProblemSet))
+                    path.append(.createImageProblemQuestion(newProblemSet))
                 }
                 .disabled(problemSetName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }

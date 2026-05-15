@@ -40,9 +40,6 @@ struct ProblemInspectorView: View {
             case let p as ImageProblem:
                 imageProblemInspector(p)
 
-            case let p as WebpageProblem:
-                webpageProblemInspector(p)
-
             default:
                 ContentUnavailableView("Unrecognized problem type", systemImage: "exclamationmark.triangle")
             }
@@ -56,15 +53,12 @@ struct ProblemInspectorView: View {
     private var iconSystemName: String {
         switch problem {
         case _ as ImageProblem: return "photo"
-        case _ as WebpageProblem: return "globe"
         default: return "questionmark"
         }
     }
 
     private var titleText: String {
         switch problem {
-        case let p as WebpageProblem:
-            return p.name
         case _ as ImageProblem:
             return "Image problem"
         default:
@@ -83,7 +77,7 @@ struct ProblemInspectorView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-
+            
             Divider()
             
             Group {
@@ -91,7 +85,7 @@ struct ProblemInspectorView: View {
                 if let data = p.solutionImage, let img = NSImage(data: data) {
                     ExpandableImageView(image: img)
                 }
-
+                
                 // Show capture/editor UI when there is no existing solution, or when editing has begun
                 if p.solutionImage == nil || editing || !solutionImagesData.isEmpty {
                     if !solutionImagesData.isEmpty {
@@ -111,7 +105,7 @@ struct ProblemInspectorView: View {
                                 }
                                 .buttonStyle(.bordered)
                                 .controlSize(.large)
-
+                                
                                 Button(role: .destructive) {
                                     solutionImagesData.removeAll()
                                 } label: {
@@ -146,11 +140,11 @@ struct ProblemInspectorView: View {
                             imagesToMerge.append(existing)
                         }
                         imagesToMerge.append(contentsOf: solutionImagesData)
-
+                        
                         if let mergedSolution = Screenshotter.mergeImagesVertically(from: imagesToMerge) {
                             p.solutionImage = mergedSolution
                         }
-
+                        
                         do {
                             try modelContext.save()
                             editing = false
@@ -162,7 +156,7 @@ struct ProblemInspectorView: View {
                         Label("Save", systemImage: "square.and.arrow.down")
                     }
                     .buttonStyle(.borderedProminent)
-
+                    
                     Button(role: .cancel) {
                         // Discard in-progress edits
                         editing = false
@@ -173,40 +167,7 @@ struct ProblemInspectorView: View {
                     .buttonStyle(.bordered)
                 }
             }
-
-            statsSection
-        }
-    }
-
-    @ViewBuilder
-    private func webpageProblemInspector(_ p: WebpageProblem) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Links")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            VStack(alignment: .leading, spacing: 8) {
-                LabeledContent("Question") {
-                    if let url = URL(string: p.questionURL) {
-                        Link(url.absoluteString, destination: url)
-                    } else {
-                        Text("Invalid URL")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                LabeledContent("Solution") {
-                    if let url = URL(string: p.solutionURL) {
-                        Link(url.absoluteString, destination: url)
-                    } else {
-                        Text("Invalid URL")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-
-            Divider()
-
+            
             statsSection
         }
     }
@@ -274,7 +235,7 @@ private struct AttemptsHeatmap: View {
 #Preview {
     // In-memory container so relationships behave like the real app.
     let container = try! ModelContainer(
-        for: Course.self, ProblemSet.self, WebpageProblem.self, ImageProblem.self, Attempt.self,
+        for: Course.self, ProblemSet.self, ImageProblem.self, Attempt.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
 
@@ -282,12 +243,7 @@ private struct AttemptsHeatmap: View {
 
     let course = Course(title: "Calculus", summary: "Learn Newton's method", hyperlink: "example.com")
     let problemSet = ProblemSet(course: course, name: "Prereqs")
-    let problem = WebpageProblem(
-        problemSet: problemSet,
-        name: "Simple numerical example 1",
-        questionURL: "https://example.com",
-        solutionURL: "https://example.com"
-    )
+    let problem = ImageProblem(problemSet: problemSet, questionImage: Data(), solutionImage: Data(), createdDate: Date.now)
 
     // Insert the graph
     context.insert(course)

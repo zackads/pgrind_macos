@@ -59,11 +59,6 @@ private struct GalleryCell: View {
                         Image(systemName: "photo")
                             .imageScale(.large)
                     }
-
-                case _ as WebpageProblem:
-                    Image(systemName: "globe")
-                        .imageScale(.large)
-
                 default:
                     Image(systemName: "questionmark")
                         .imageScale(.large)
@@ -114,8 +109,6 @@ private struct GalleryCell: View {
 
     private var accessibilityLabel: String {
         switch problem {
-        case let p as WebpageProblem:
-            return "Webpage problem: \(p.name)"
         case _ as ImageProblem:
             return "Image problem"
         default:
@@ -165,13 +158,8 @@ private struct GalleryCell: View {
         problemSet: problemSet,
         questionImage: Data(), solutionImage: nil, createdDate: Date())
 
-    let webpageProblem = WebpageProblem(
-        problemSet: problemSet,
-        name: "Two Sum",
-        questionURL: "example.com", solutionURL: "example.com")
-
     return ProblemsGalleryView(
-        problems: [imageProblem, webpageProblem]
+        problems: [imageProblem]
     ) { _ in }
     .padding()
 }

@@ -10,10 +10,9 @@ struct pgrindApp: App {
             ProblemSet.self,
             Problem.self,
             ImageProblem.self,
-            WebpageProblem.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
+
         do {
             return try ModelContainer(
                 for: schema,
@@ -30,14 +29,13 @@ struct pgrindApp: App {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
-        
-        WindowGroup(id: "create-problem", for: PersistentIdentifier?.self) { $courseID in            
+
+        WindowGroup(id: "create-problem", for: PersistentIdentifier?.self) { $courseID in
             if let courseID {
                 CreateProblemWizard(courseID: courseID)
             } else {
                 CreateProblemWizard(courseID: nil)
             }
-            
         }
         .modelContainer(sharedModelContainer)
     }

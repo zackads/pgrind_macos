@@ -17,15 +17,6 @@ struct RecordAttemptView: View {
                 switch problem {
                 case let ip as ImageProblem:
                     RecordImageProblemAttemptView(problem: ip)
-                case let wp as WebpageProblem:
-                    if let solutionURL = URL(string: wp.solutionURL) {
-                        Link(destination: solutionURL) {
-                            Label("Open solution", systemImage: "arrow.up.right.square")
-                        }
-                        .buttonStyle(.bordered)
-                    } else {
-                        ContentUnavailableView("No solution webpage available", systemImage: "safari")
-                    }
                 default:
                     ContentUnavailableView("Unrecognized problem", systemImage: "exclamationmark.triangle")
                 }
@@ -105,23 +96,6 @@ struct RecordImageProblemAttemptView: View {
             .tag(Tab.solution)
         }
     }
-}
-
-
-#Preview("WebpageProblem") {
-    let course = Course(
-        title: "Test course",
-        summary: "A test course for testing purposes",
-        hyperlink: "http://example.com/course"
-    )
-    let problemSet = ProblemSet(course: course, name: "Week 3")
-    let problem = WebpageProblem(
-        problemSet: problemSet,
-        name: "Test problem",
-        questionURL: "https://example.com/question",
-        solutionURL: "https://example.com/solution"
-    )
-    RecordAttemptView(path: .constant([]), problem: problem)
 }
 
 #Preview("ImageProblem") {

@@ -7,10 +7,8 @@ struct CreateProblemWizard: View {
         case createCourse
         case createProblemSet(Course)
         case selectProblemSet(Course)
-        case selectProblemKind(ProblemSet)
         case createImageProblemQuestion(ProblemSet)
         case createImageProblemSolution(ImageProblem)
-        case createWebpageProblem(ProblemSet)
     }
     
     @Environment(\.dismiss) private var dismiss
@@ -48,14 +46,10 @@ struct CreateProblemWizard: View {
                     SelectProblemSet(path: $path, course: course, selectedProblemSet: $selectedProblemSet, onCancel: { dismiss() })
                 case let .createProblemSet(course):
                     CreateProblemSet(path: $path, course: course, selectedProblemSet: $selectedProblemSet, onCancel: { dismiss() })
-                case let .selectProblemKind(problemSet):
-                    SelectProblemKind(path: $path, problemSet: problemSet, selectedProblemKind: $selectedProblemKind, onCancel: { dismiss() })
                 case let .createImageProblemQuestion(problemSet):
                     CreateImageProblemQuestion(path: $path, problemSet: problemSet, onCancel: { dismiss() })
                 case let .createImageProblemSolution(imageProblem):
                     CreateImageProblemSolution(path: $path, imageProblem: imageProblem, onSave: { dismiss() }, onCancel: { dismiss() })
-                case let .createWebpageProblem(problemSet):
-                    CreateWebpageProblem(path: $path, problemSet: problemSet, onSave: { dismiss() }, onCancel: { dismiss() })
                 }
             }
         }

@@ -42,15 +42,6 @@ struct ProblemDetailView: View {
                         Text("Missing problem image")
                     }
                 }
-            case let wp as WebpageProblem:
-                Image(systemName: "globe")
-                Text("Name goes here")
-                if let questionURL = URL(string: wp.questionURL) {
-                    Link(destination: questionURL) {
-                        Label("Open question", systemImage: "arrow.up.right.square")
-                    }
-                    .buttonStyle(.bordered)
-                }
             default:
                 ContentUnavailableView("Unrecognized problem", systemImage: "exclamationmark.triangle")
             }
@@ -113,22 +104,3 @@ struct ProblemDetailView: View {
     )
     .frame(width: 600, height: 800)
 }
-
-#Preview("WebpageProblem") {
-    @Previewable @State var path: [ProblemDetailView.Route] = []
-    
-    let course = Course(title: "LeetCode", summary: "Grind it man", hyperlink: "https://www.leetcode.com")
-    let problemSet = ProblemSet(course: course, name: "Week 0")
-    
-    ProblemDetailView(
-        path: $path,
-        problem: WebpageProblem(
-            problemSet: problemSet,
-            name: "Sample Algebra Problem",
-            questionURL: "https://example.com/question",
-            solutionURL: "https://example.com/solution"
-        )
-    )
-    .frame(width: 600, height: 800)
-}
-

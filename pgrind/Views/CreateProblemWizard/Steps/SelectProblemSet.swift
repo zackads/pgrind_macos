@@ -90,7 +90,7 @@ struct SelectProblemSet: View {
                     case .new:
                         path.append(.createProblemSet(course))
                     case .existing(let selectedSection):
-                        path.append(.selectProblemKind(selectedSection))
+                        path.append(.createImageProblemQuestion(selectedSection))
                     case .none:
                         fatalError("Invalid state")
                     }

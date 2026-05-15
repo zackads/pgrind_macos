@@ -108,12 +108,6 @@ struct BrowseView: View {
                             }
                         }
                         .tag(problem)
-                    case let p as WebpageProblem:
-                        HStack {
-                            Image(systemName: "globe")
-                            Text(p.name)
-                        }
-                        .tag(problem)
                     default:
                         EmptyView()
                     }
@@ -132,7 +126,6 @@ struct BrowseView: View {
         ProblemSet.self,
         Problem.self,
         ImageProblem.self,
-        WebpageProblem.self,
         Attempt.self,
     ])
 
@@ -162,36 +155,17 @@ struct BrowseView: View {
     context.insert(ps1)
     context.insert(ps2)
     try? context.save()
-
-    // Sample problems: webpage and image kinds
-    let webpageProblem = WebpageProblem(
-        problemSet: ps1,
-        name: "Limits Basics",
-        questionURL: "https://example.com/limits",
-        solutionURL: "https://example.com/limits-solution"
-    )
+    
     let imageProblem = ImageProblem(
         problemSet: ps1,
         questionImage: Data(),
         solutionImage: Data(),
     )
-    let leetcodeProblem = WebpageProblem(
-        problemSet: ps2,
-        name: "Two Sum",
-        questionURL: "https://leetcode.com/problems/two-sum/",
-        solutionURL: "https://example.com/two-sum-solution"
-    )
-    context.insert(webpageProblem)
     context.insert(imageProblem)
-    context.insert(leetcodeProblem)
     try? context.save()
     
-    let a1 = Attempt(problem: webpageProblem, difficulty: .medium)
-    let a2 = Attempt(problem: webpageProblem, difficulty: .easy)
     let a3 = Attempt(problem: imageProblem, difficulty: .hard)
     let a4 = Attempt(problem: imageProblem, difficulty: .hard)
-    context.insert(a1)
-    context.insert(a2)
     context.insert(a3)
     context.insert(a4)
     try? context.save()
