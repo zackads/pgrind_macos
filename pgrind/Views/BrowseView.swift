@@ -34,7 +34,7 @@ struct BrowseView: View {
     
     var body: some View {
         NavigationSplitView {
-            sidebar(courses: courses)
+            SidebarView(selectedSidebarItem: $selectedSidebarItem, courses: courses)
         } detail: {
             NavigationStack(path: $path) {
                 Group {
@@ -89,28 +89,6 @@ struct BrowseView: View {
                     .keyboardShortcut("n", modifiers: [.command])
                     .labelStyle(.titleAndIcon)
                 }
-            }
-        }
-    }
-    
-    private func sidebar(courses: [Course]) -> some View {
-        return List(selection: $selectedSidebarItem) {
-            Section {
-                ForEach(courses) { course in
-                    Text(course.title).tag(SidebarItem.course(course))
-                }
-                .onDeleteCommand {
-                    if case .course(let course) = selectedSidebarItem {
-                        modelContext.delete(course)
-                        
-                        selectedSidebarItem = nil
-                        selectedProblem = nil
-                        
-                        try? modelContext.save()
-                    }
-                }
-            } header: {
-                Label("Courses", systemImage: "books.vertical")
             }
         }
     }
