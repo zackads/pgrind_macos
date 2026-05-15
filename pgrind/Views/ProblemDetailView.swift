@@ -60,12 +60,14 @@ struct ProblemDetailView: View {
         .padding()
         .navigationTitle("Problem")
         .toolbar {
-            ToolbarItemGroup(placement: .principal) {
+            ToolbarItemGroup(placement: .primaryAction) {
                 Button {
                     path.append(.recordAttempt(problem))
                 } label: {
                     Label("Attempt", systemImage: "bolt")
                 }
+                .labelStyle(.titleAndIcon)
+                
                 Button(role: .destructive) {
                     // If the problem is currently being shown in the navigation path, pop it first
                     if let last = path.last {
@@ -88,6 +90,7 @@ struct ProblemDetailView: View {
                     Label("Delete", systemImage: "trash")
                 }
                 .help("Delete the selected problem")
+                .labelStyle(.titleAndIcon)
                 .keyboardShortcut(.delete, modifiers: [])
             }
         }

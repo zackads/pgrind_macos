@@ -79,21 +79,16 @@ struct BrowseView: View {
             selectedProblem = nil
         }
         .toolbar {
-            ToolbarItemGroup(placement: .principal) {
-                Button {
-                    openWindow(id: "create-problem", value: selectedCourse?.persistentModelID)
-                } label: {
-                    Label("New problem", systemImage: "plus")
+            ToolbarItemGroup() {
+                if path.isEmpty {
+                    Button {
+                        openWindow(id: "create-problem", value: selectedCourse?.persistentModelID)
+                    } label: {
+                        Label("New", systemImage: "plus")
+                    }
+                    .keyboardShortcut("n", modifiers: [.command])
+                    .labelStyle(.titleAndIcon)
                 }
-                .keyboardShortcut("n", modifiers: [.command])
-
-                Button {
-                    showInspector.toggle()
-                } label: {
-                    Label(showInspector ? "Hide Inspector" : "Show Inspector",
-                          systemImage: "sidebar.right")
-                }
-                .keyboardShortcut("i", modifiers: [.command, .option])
             }
         }
     }
