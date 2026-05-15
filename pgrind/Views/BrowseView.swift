@@ -20,7 +20,6 @@ struct BrowseView: View {
     
     enum SidebarItem: Hashable {
         case course(Course)
-        case deck(Deck)
     }
     @State private var selectedSidebarItem: SidebarItem?
     var selectedCourse: Course? {
@@ -45,26 +44,14 @@ struct BrowseView: View {
                             VStack(alignment: .leading) {
                                 Text(ps.name)
                                     .font(.title3)
-                                Group {
-                                    switch viewMode {
-                                    case .thumbnail:
-                                        ProblemsGalleryView(problems: ps.problems) { problem in
-                                            selectedProblem = problem
-                                            path.append(.showQuestion(problem))
-                                        }
-                                    case .heatmap:
-                                        ProblemsHeatmapView(problems: ps.problems) { problem in
-                                            selectedProblem = problem
-                                            path.append(.showQuestion(problem))
-                                        }
-                                    }
+                                ProblemsGalleryView(problems: ps.problems) { problem in
+                                    selectedProblem = problem
+                                    path.append(.showQuestion(problem))
                                 }
                             }
                             .tag(ps)
                         }
                         .navigationTitle(course.title)
-                    case .deck(let deck):
-                        Text("TODO!")
                     case nil:
                         ContentUnavailableView("Select a course", systemImage: "books.vertical")
                     }
@@ -108,14 +95,6 @@ struct BrowseView: View {
                           systemImage: "sidebar.right")
                 }
                 .keyboardShortcut("i", modifiers: [.command, .option])
-            }
-            ToolbarItem(placement: .status) {
-                Picker("View", selection: $viewMode) {
-                    Label("Thumbnails", systemImage: "photo.stack").tag(ViewMode.thumbnail)
-                    Label("Heatmap", systemImage: "flame").tag(ViewMode.heatmap)
-                }
-                .pickerStyle(.segmented)
-                .help("Toggle between thumbnail and heatmap views")
             }
             ToolbarItem(placement: .destructiveAction) {
                 Button(role: .destructive) {
@@ -167,14 +146,6 @@ struct BrowseView: View {
                 }
             } header: {
                 Label("Courses", systemImage: "books.vertical")
-            }
-            
-            Section {
-                ForEach(decks) { deck in
-                    Text(deck.title).tag(SidebarItem.deck(deck))
-                }
-            } header: {
-                Label("Decks", systemImage: "square.stack.3d.up")
             }
         }
     }
