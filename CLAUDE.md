@@ -10,27 +10,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Run the following commands to build, clean, run and debug the project:
 
-```sh
+```bash
 # Build
 xcodebuild -project pgrind.xcodeproj -scheme pgrind -configuration Debug \
     -derivedDataPath build build
-
+# Build and run tests
+xcodebuild -project pgrind.xcodeproj -scheme pgrind -configuration Debug \
+    -derivedDataPath build test
 # Clean
 xcodebuild -project pgrind.xcodeproj -scheme pgrind clean
-
 # Run
 build/Build/Products/Debug/pgrind.app/Contents/MacOS/pgrind
-
 # View debug logs (live stream)
 log stream --predicate 'process == "pgrind"' --level debug
-
 # View debug logs (after execution)
 log show --predicate 'process == "pgrind"' --last 5m --info --debug
 ```
 
 If the app crashes, crash reports land in ~/Library/Logs/DiagnosticReports/pgrind-*.ips.
 
-After each change, build and run the project to make sure it compiles and executes cleanly, and check the logs for any warnings or errors.
+After each change, build, run tests and run the project to make sure it compiles and executes cleanly, and check the logs for any warnings or errors.
 
 New `.swift` files must be added to the Xcode target in `project.pbxproj` — creating a file on disk alone won't compile it.
 
