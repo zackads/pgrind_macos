@@ -1,6 +1,9 @@
 import SwiftUI
+import SwiftData
 
 struct ProblemDetailView: View {
+    @Environment(\.modelContext) private var modelContext
+    
     @Binding var path: [ProblemDetailView.Route]
     
     let problem: Problem
@@ -57,12 +60,35 @@ struct ProblemDetailView: View {
         .padding()
         .navigationTitle("Problem")
         .toolbar {
-            ToolbarItem(placement: .principal) {
+            ToolbarItemGroup(placement: .principal) {
                 Button {
                     path.append(.recordAttempt(problem))
                 } label: {
                     Label("Attempt", systemImage: "bolt")
                 }
+                Button(role: .destructive) {
+                    // If the problem is currently being shown in the navigation path, pop it first
+                    if let last = path.last {
+                        switch last {
+                        case let .showQuestion(p) where p.persistentModelID == problem.persistentModelID:
+                            _ = path.popLast()
+                        case let .recordAttempt(p) where p.persistentModelID == problem.persistentModelID:
+                            _ = path.popLast()
+                        default:
+                            break
+                        }
+                    }
+
+                    // Delete the problem from the model context
+                    modelContext.delete(problem)
+
+                    // Persist changes
+                    try? modelContext.save()
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+                .help("Delete the selected problem")
+                .keyboardShortcut(.delete, modifiers: [])
             }
         }
     }
@@ -102,3 +128,4 @@ struct ProblemDetailView: View {
     )
     .frame(width: 600, height: 800)
 }
+

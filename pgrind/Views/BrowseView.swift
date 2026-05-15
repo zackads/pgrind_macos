@@ -79,15 +79,14 @@ struct BrowseView: View {
             selectedProblem = nil
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItemGroup(placement: .principal) {
                 Button {
                     openWindow(id: "create-problem", value: selectedCourse?.persistentModelID)
                 } label: {
-                    Label("Add a new problem", systemImage: "plus")
+                    Label("New problem", systemImage: "plus")
                 }
                 .keyboardShortcut("n", modifiers: [.command])
-            }
-            ToolbarItem(placement: .automatic) {
+
                 Button {
                     showInspector.toggle()
                 } label: {
@@ -95,35 +94,6 @@ struct BrowseView: View {
                           systemImage: "sidebar.right")
                 }
                 .keyboardShortcut("i", modifiers: [.command, .option])
-            }
-            ToolbarItem(placement: .destructiveAction) {
-                Button(role: .destructive) {
-                    guard let problem = selectedProblem else { return }
-
-                    // If the problem is currently being shown in the navigation path, pop it first
-                    if let last = path.last {
-                        switch last {
-                        case let .showQuestion(p) where p.persistentModelID == problem.persistentModelID:
-                            _ = path.popLast()
-                        case let .recordAttempt(p) where p.persistentModelID == problem.persistentModelID:
-                            _ = path.popLast()
-                        default:
-                            break
-                        }
-                    }
-
-                    // Delete the problem from the model context
-                    modelContext.delete(problem)
-
-                    // Clear selection and persist changes
-                    selectedProblem = nil
-                    try? modelContext.save()
-                } label: {
-                    Label("Delete Problem", systemImage: "trash")
-                }
-                .disabled(selectedProblem == nil)
-                .help("Delete the selected problem")
-                .keyboardShortcut(.delete, modifiers: [])
             }
         }
     }
