@@ -8,6 +8,12 @@ private enum ViewMode {
 }
 
 struct Home: View {
+    enum Route: Hashable {
+        case viewCourse(Course)
+        case viewProblem(Problem)
+        case recordAttempt(Problem)
+    }
+    
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
     
@@ -16,7 +22,7 @@ struct Home: View {
     @Query(sort: \Problem.createdDate, order: .forward) private var problems: [Problem]
     @Query(sort: \Deck.createdDate, order: .forward) private var decks: [Deck]
     
-    @State var path: [ProblemDetailView.Route] = []
+    @State private var path: [Route] = []
     
     enum SidebarItem: Hashable {
         case course(Course)
@@ -45,9 +51,11 @@ struct Home: View {
                         ContentUnavailableView("Select a course", systemImage: "books.vertical")
                     }
                 }
-                .navigationDestination(for: ProblemDetailView.Route.self) { route in
+                .navigationDestination(for: Route.self) { route in
                     switch route {
-                    case let .showQuestion(problem):
+                    case let .viewCourse(course):
+                        CourseView(path: $path, course: course)
+                    case let .viewProblem(problem):
                         ProblemDetailView(path: $path, problem: problem)
                     case let .recordAttempt(problem):
                         RecordAttemptView(path: $path, problem: problem)

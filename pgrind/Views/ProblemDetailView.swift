@@ -4,7 +4,7 @@ import SwiftData
 struct ProblemDetailView: View {
     @Environment(\.modelContext) private var modelContext
     
-    @Binding var path: [ProblemDetailView.Route]
+    @Binding var path: [Home.Route]
     
     let problem: Problem
     
@@ -63,7 +63,7 @@ struct ProblemDetailView: View {
                     // If the problem is currently being shown in the navigation path, pop it first
                     if let last = path.last {
                         switch last {
-                        case let .showQuestion(p) where p.persistentModelID == problem.persistentModelID:
+                        case let .viewProblem(p) where p.persistentModelID == problem.persistentModelID:
                             _ = path.popLast()
                         case let .recordAttempt(p) where p.persistentModelID == problem.persistentModelID:
                             _ = path.popLast()
@@ -89,7 +89,7 @@ struct ProblemDetailView: View {
 }
 
 #Preview("ImageProblem") {
-    @Previewable @State var path: [ProblemDetailView.Route] = []
+    @Previewable @State var path: [Home.Route] = []
     
     let course = Course(title: "LeetCode", summary: "Grind it man", hyperlink: "https://www.leetcode.com")
     let problemSet = ProblemSet(course: course, name: "Week 0")

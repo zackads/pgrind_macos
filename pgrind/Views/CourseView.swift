@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct CourseView: View {
-    @Binding var path: [ProblemDetailView.Route]
+    @Binding var path: [Home.Route]
     var course: Course
     
     @Environment(\.openWindow) private var openWindow
@@ -20,7 +20,7 @@ struct CourseView: View {
                                         Text(ps.name)
                                             .font(.title3)
                                         ProblemsGalleryView(problems: ps.problems) { problem in
-                                            path.append(.showQuestion(problem))
+                                            path.append(.viewProblem(problem))
                                         }
                                     }
                                     .tag(ps)

@@ -5,7 +5,7 @@ struct RecordAttemptView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
     
-    @Binding var path: [ProblemDetailView.Route]
+    @Binding var path: [Home.Route]
     var problem: Problem
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var notes: String = ""
