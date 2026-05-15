@@ -16,18 +16,6 @@ struct CreateCourseSheet: View {
     @State private var summary: String = ""
     @State private var hyperlink: String = ""
 
-    private var trimmedTitle: String {
-        title.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var trimmedSummary: String {
-        summary.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var trimmedHyperlink: String {
-        hyperlink.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
     var body: some View {
         VStack(spacing: 0) {
             Form {
@@ -35,11 +23,11 @@ struct CreateCourseSheet: View {
                     Text("Name")
                 }
                 TextField(text: $summary, prompt: Text("E.g. 'Master the calculus of derivatives, integrals, coordinate systems, and infinite series.'"), axis: .vertical) {
-                    Text("Description")
+                    Text("Description (optional)")
                 }
                 .lineLimit(3 ... 5)
                 TextField(text: $hyperlink, prompt: Text("E.g. 'https://ocw.mit.edu/courses/18-01-calculus-i-single-variable-calculus-fall-2020/'")) {
-                    Text("Website URL")
+                    Text("Website URL (optional)")
                 }
             }
             .formStyle(.grouped)
@@ -52,16 +40,16 @@ struct CreateCourseSheet: View {
                 .keyboardShortcut(.cancelAction)
                 Button("Create") {
                     let newCourse = Course(
-                        title: trimmedTitle,
-                        summary: trimmedSummary,
-                        hyperlink: trimmedHyperlink
+                        title: title,
+                        summary: summary,
+                        hyperlink: hyperlink
                     )
                     modelContext.insert(newCourse)
                     try? modelContext.save()
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
-                .disabled(trimmedTitle.isEmpty || trimmedSummary.isEmpty || trimmedHyperlink.isEmpty)
+                .disabled(title.isEmpty)
             }
             .padding()
         }
