@@ -13,7 +13,10 @@ final class ProblemSet {
     @Relationship(deleteRule: .cascade, inverse: \ImageProblem.problemSet)
     var problems: [ImageProblem] = []
 
-    @MainActor
+    var sortedProblems: [ImageProblem] {
+        problems.sorted { $0.createdDate < $1.createdDate }
+    }
+
     var lastAddedTo: Date {
         return problems.map { $0.createdDate }.max() ?? Date.distantPast
     }
