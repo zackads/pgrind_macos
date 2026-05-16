@@ -33,6 +33,14 @@ struct StudyPlanView: View {
                 LabeledContent("Problem selection", value: studyPlan.problemSelectionMethod.description)
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Run", systemImage: "play.fill") {
+                    
+                }
+                .help("Run")
+            }
+        }
         .formStyle(.grouped)
         .navigationTitle(studyPlan.name)
     }
