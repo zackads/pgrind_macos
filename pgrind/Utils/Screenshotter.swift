@@ -64,28 +64,18 @@ class Screenshotter {
     }
 
     static func mergeImagesVertically(from imagesData: [Data]) -> Data? {
-        let nsImages: [NSImage] = imagesData.compactMap { NSImage(data: $0) }
-        guard !nsImages.isEmpty else { return nil }
-
-        // Compute total height and max width
-        var totalHeight: CGFloat = 0
-        var maxWidth: CGFloat = 0
-        var reps: [(NSBitmapImageRep, CGSize)] = []
-
-        for img in nsImages {
-            guard let rep = bestBitmapRep(for: img) else { continue }
-            reps.append((rep, rep.size))
-            totalHeight += rep.size.height
-            maxWidth = max(maxWidth, rep.size.width)
-        }
-
+        let reps: [NSBitmapImageRep] = imagesData.compactMap { NSBitmapImageRep(data: $0) }
         guard !reps.isEmpty else { return nil }
 
-        let finalSize = NSSize(width: maxWidth, height: totalHeight)
+        // Work in pixel space so Retina captures don't get downsampled.
+        let maxPixelWidth = reps.map(\.pixelsWide).max() ?? 0
+        let totalPixelHeight = reps.map(\.pixelsHigh).reduce(0, +)
+        guard maxPixelWidth > 0, totalPixelHeight > 0 else { return nil }
+
         guard let finalRep = NSBitmapImageRep(
             bitmapDataPlanes: nil,
-            pixelsWide: Int(finalSize.width),
-            pixelsHigh: Int(finalSize.height),
+            pixelsWide: maxPixelWidth,
+            pixelsHigh: totalPixelHeight,
             bitsPerSample: 8,
             samplesPerPixel: 4,
             hasAlpha: true,
@@ -94,33 +84,29 @@ class Screenshotter {
             bytesPerRow: 0,
             bitsPerPixel: 0
         ) else { return nil }
+        // Keep the rep's logical size in pixels so drawing maps 1:1.
+        finalRep.size = NSSize(width: maxPixelWidth, height: totalPixelHeight)
 
         NSGraphicsContext.saveGraphicsState()
-        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: finalRep)
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        guard let ctx = NSGraphicsContext(bitmapImageRep: finalRep) else { return nil }
+        NSGraphicsContext.current = ctx
+        ctx.imageInterpolation = .high
 
         NSColor.clear.set()
-        NSRect(origin: .zero, size: finalSize).fill()
+        NSRect(x: 0, y: 0, width: maxPixelWidth, height: totalPixelHeight).fill()
 
-        var y: CGFloat = finalSize.height
-        for (rep, size) in reps {
-            y -= size.height
-            let rect = NSRect(x: 0, y: y, width: size.width, height: size.height)
+        var y = totalPixelHeight
+        for rep in reps {
+            y -= rep.pixelsHigh
+            let rect = NSRect(x: 0, y: y, width: rep.pixelsWide, height: rep.pixelsHigh)
+            // Force a 1:1 pixel draw by temporarily matching the rep's logical size to its pixel dims.
+            let originalSize = rep.size
+            rep.size = NSSize(width: rep.pixelsWide, height: rep.pixelsHigh)
             rep.draw(in: rect)
+            rep.size = originalSize
         }
 
-        NSGraphicsContext.restoreGraphicsState()
-
-        let finalImage = NSImage(size: finalSize)
-        finalImage.addRepresentation(finalRep)
-
-        return finalImage.tiffRepresentation
-    }
-
-    private static func bestBitmapRep(for image: NSImage) -> NSBitmapImageRep? {
-        if let rep = image.representations.compactMap({ $0 as? NSBitmapImageRep }).first {
-            return rep
-        }
-        guard let tiff = image.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) else { return nil }
-        return rep
+        return finalRep.representation(using: .png, properties: [:])
     }
 }
