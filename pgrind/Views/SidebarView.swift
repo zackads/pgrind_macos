@@ -11,59 +11,21 @@ import SwiftUI
 struct SidebarView: View {
     @Binding var selectedSidebarItem: Home.SidebarItem?
     let courses: [Course]
+    let studyPlans: [StudyPlan]
     @Environment(\.modelContext) private var modelContext
     @State private var coursePendingDeletion: Course?
     @State private var showingDeleteConfirmation = false
     @State private var isHoveringCoursesHeader = false
+    @State private var isHoveringStudyPlansHeader = false
     @State private var showingCreateCourse = false
+    @State private var showingCreateStudyPlan = false
+    @State private var studyPlanPendingDeletion: StudyPlan?
+    @State private var showingDeleteStudyPlanConfirmation = false
 
     var body: some View {
-        Group {
-            List(selection: $selectedSidebarItem) {
-                Section {
-                    ForEach(courses) { course in
-                        HStack {
-                            courseRow(course)
-                        }
-                        .tag(Home.SidebarItem.course(course))
-                        .contextMenu {
-                            Button(role: .destructive) {
-                                coursePendingDeletion = course
-                                showingDeleteConfirmation = true
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        }
-                    }
-                    .onDeleteCommand {
-                        if case let .course(course) = selectedSidebarItem {
-                            modelContext.delete(course)
-                            selectedSidebarItem = nil
-                            try? modelContext.save()
-                        }
-                    }
-                } header: {
-                    HStack {
-                        Text("Courses")
-                        Spacer()
-                        Button {
-                            showingCreateCourse = true
-                        } label: {
-                            Image(systemName: "plus")
-                                .frame(width: 20, height: 20)
-                        }
-                        .buttonStyle(.plain)
-                        .help("Add a new course")
-                        .opacity(isHoveringCoursesHeader ? 1 : 0)
-                        .allowsHitTesting(isHoveringCoursesHeader)
-                    }
-                    .padding(.trailing, 8)
-                    .contentShape(Rectangle())
-                    .onHover { hovering in
-                        isHoveringCoursesHeader = hovering
-                    }
-                }
-            }
+        List(selection: $selectedSidebarItem) {
+            coursesSection
+            studyPlansSection
         }
         .confirmationDialog(
             "Delete this course?",
@@ -82,8 +44,114 @@ struct SidebarView: View {
         } message: { course in
             Text("This will permanently delete the course \"\(course.title)\", all of its problems and any review data. This action cannot be undone.")
         }
+        .confirmationDialog(
+            "Delete this study plan?",
+            isPresented: $showingDeleteStudyPlanConfirmation,
+            titleVisibility: .visible,
+            presenting: studyPlanPendingDeletion
+        ) { plan in
+            Button("Delete \"\(plan.name)\"", role: .destructive) {
+                modelContext.delete(plan)
+                if case let .studyPlan(selected) = selectedSidebarItem, selected.id == plan.id {
+                    selectedSidebarItem = nil
+                }
+                try? modelContext.save()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { plan in
+            Text("This will permanently delete the study plan \"\(plan.name)\". This action cannot be undone.")
+        }
         .sheet(isPresented: $showingCreateCourse) {
             CreateCourseSheet()
+        }
+        .sheet(isPresented: $showingCreateStudyPlan) {
+            CreateStudyPlanSheet(courses: courses)
+        }
+    }
+
+    private var coursesSection: some View {
+        Section {
+            ForEach(courses) { course in
+                HStack {
+                    courseRow(course)
+                }
+                .tag(Home.SidebarItem.course(course))
+                .contextMenu {
+                    Button(role: .destructive) {
+                        coursePendingDeletion = course
+                        showingDeleteConfirmation = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
+            }
+            .onDeleteCommand {
+                if case let .course(course) = selectedSidebarItem {
+                    modelContext.delete(course)
+                    selectedSidebarItem = nil
+                    try? modelContext.save()
+                }
+            }
+        } header: {
+            sectionHeader(
+                title: "Courses",
+                help: "Add a new course",
+                isHovering: $isHoveringCoursesHeader,
+                onAdd: { showingCreateCourse = true }
+            )
+        }
+    }
+
+    private var studyPlansSection: some View {
+        Section {
+            ForEach(studyPlans) { plan in
+                HStack {
+                    studyPlanRow(plan)
+                }
+                .tag(Home.SidebarItem.studyPlan(plan))
+                .contextMenu {
+                    Button(role: .destructive) {
+                        studyPlanPendingDeletion = plan
+                        showingDeleteStudyPlanConfirmation = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
+            }
+            .onDeleteCommand {
+                if case let .studyPlan(plan) = selectedSidebarItem {
+                    modelContext.delete(plan)
+                    selectedSidebarItem = nil
+                    try? modelContext.save()
+                }
+            }
+        } header: {
+            sectionHeader(
+                title: "Study Plans",
+                help: "Add a new study plan",
+                isHovering: $isHoveringStudyPlansHeader,
+                onAdd: { showingCreateStudyPlan = true }
+            )
+        }
+    }
+
+    private func sectionHeader(title: String, help: String, isHovering: Binding<Bool>, onAdd: @escaping () -> Void) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Button(action: onAdd) {
+                Image(systemName: "plus")
+                    .frame(width: 20, height: 20)
+            }
+            .buttonStyle(.plain)
+            .help(help)
+            .opacity(isHovering.wrappedValue ? 1 : 0)
+            .allowsHitTesting(isHovering.wrappedValue)
+        }
+        .padding(.trailing, 8)
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            isHovering.wrappedValue = hovering
         }
     }
 
@@ -92,6 +160,14 @@ struct SidebarView: View {
             Text(course.title)
             Spacer()
             Pill(text: "\(Int(course.progress.proportionAttempted * 100))%")
+        }
+    }
+
+    private func studyPlanRow(_ plan: StudyPlan) -> some View {
+        HStack {
+            Image(systemName: "calendar")
+            Text(plan.name)
+            Spacer()
         }
     }
 }

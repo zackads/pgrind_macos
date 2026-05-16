@@ -37,7 +37,7 @@ struct CourseView: View {
         VStack(alignment: .leading) {
             Text(ps.name)
                 .font(.title3)
-            ProblemsGalleryView(problems: ps.problems) { problem in
+            ProblemsGalleryView(problems: ps.sortedProblems) { problem in
                 path.append(.viewProblem(problem))
             }
         }

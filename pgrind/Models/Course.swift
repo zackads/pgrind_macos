@@ -42,4 +42,55 @@ final class Course {
             proportionEasy: Float(problems.filter { $0.currentDifficulty == .easy }.count) / Float(problems.count)
         )
     }
+    
+    var attempted: [ImageProblem] {
+        var attempted: [ImageProblem] = []
+        
+        for ps in problemSets {
+            for problem in ps.problems {
+                if problem.attempted {
+                    attempted.append(problem)
+                }
+            }
+        }
+        
+        return attempted
+    }
+    
+    var unattempted: [ImageProblem] {
+        var unattempted: [ImageProblem] = []
+        
+        for ps in problemSets {
+            for problem in ps.problems {
+                if !problem.attempted {
+                    unattempted.append(problem)
+                }
+            }
+        }
+        
+        return unattempted
+    }
+        
+    /// A rating between 0 and 1 of how difficult the course is, derived from Attempts of its Problems.
+    var difficulty: Double {
+        // A Course with no attempts is assumed to be of Medium difficulty
+        guard !attempted.isEmpty else { return 0.5 }
+        
+        var countEasy = 0
+        var countMedium = 0
+        var countHard = 0
+        var countNotAttempted = 0
+        
+        for p in attempted {
+            switch p.currentDifficulty {
+                case .easy: countEasy += 1
+                case .medium: countMedium += 1
+                case .hard: countHard += 1
+                case .notAttempted: countNotAttempted += 1
+            }
+        }
+        
+        let weighted = 0.0 * Double(countEasy) + 0.5 * Double(countMedium) + 1.0 * Double(countHard)
+        return weighted / Double(attempted.count)
+    }
 }

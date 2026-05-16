@@ -20,11 +20,13 @@ struct Home: View {
     @Query(sort: \Course.createdDate, order: .forward) private var courses: [Course]
     @Query(sort: \ProblemSet.createdDate, order: .forward) private var problemSets: [ProblemSet]
     @Query(sort: \ImageProblem.createdDate, order: .forward) private var problems: [ImageProblem]
+    @Query(sort: \StudyPlan.createdDate, order: .forward) private var studyPlans: [StudyPlan]
 
     @State private var path: [Route] = []
 
     enum SidebarItem: Hashable {
         case course(Course)
+        case studyPlan(StudyPlan)
     }
 
     @State private var selectedSidebarItem: SidebarItem?
@@ -40,13 +42,15 @@ struct Home: View {
 
     var body: some View {
         NavigationSplitView {
-            SidebarView(selectedSidebarItem: $selectedSidebarItem, courses: courses)
+            SidebarView(selectedSidebarItem: $selectedSidebarItem, courses: courses, studyPlans: studyPlans)
         } detail: {
             NavigationStack(path: $path) {
                 Group {
                     switch selectedSidebarItem {
                     case let .course(course):
                         CourseView(path: $path, course: course)
+                    case let .studyPlan(studyPlan):
+                        StudyPlanView(studyPlan: studyPlan)
                     case nil:
                         ContentUnavailableView("Select a course", systemImage: "books.vertical")
                     }
