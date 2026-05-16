@@ -12,6 +12,7 @@ struct SidebarView: View {
     @Binding var selectedSidebarItem: Home.SidebarItem?
     let courses: [Course]
     let studyPlans: [StudyPlan]
+    let inboxCount: Int
     @Environment(\.modelContext) private var modelContext
     @State private var coursePendingDeletion: Course?
     @State private var showingDeleteConfirmation = false
@@ -24,6 +25,7 @@ struct SidebarView: View {
 
     var body: some View {
         List(selection: $selectedSidebarItem) {
+            inboxSection
             coursesSection
             studyPlansSection
         }
@@ -69,6 +71,37 @@ struct SidebarView: View {
         }
     }
 
+    private var inboxSection: some View {
+        Section {
+            HStack(spacing: 8) {
+                Image(systemName: "tray.full")
+                Text("Inbox")
+                    .fontWeight(.medium)
+                Spacer()
+                if inboxCount > 0 {
+                    Text("\(inboxCount)")
+                        .font(.caption2)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.red, in: Capsule())
+                }
+            }
+            .padding(.vertical, 4)
+            .listRowBackground(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(
+                        selectedSidebarItem == .inbox
+                            ? Color.accentColor
+                            : Color.accentColor.opacity(inboxCount > 0 ? 0.12 : 0)
+                    )
+                    .padding(.horizontal, 4)
+            )
+            .tag(Home.SidebarItem.inbox)
+        }
+    }
+    
     private var coursesSection: some View {
         Section {
             ForEach(courses) { course in

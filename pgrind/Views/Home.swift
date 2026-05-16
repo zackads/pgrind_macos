@@ -25,6 +25,7 @@ struct Home: View {
     @State private var path: [Route] = []
 
     enum SidebarItem: Hashable {
+        case inbox
         case course(Course)
         case studyPlan(StudyPlan)
     }
@@ -42,11 +43,18 @@ struct Home: View {
 
     var body: some View {
         NavigationSplitView {
-            SidebarView(selectedSidebarItem: $selectedSidebarItem, courses: courses, studyPlans: studyPlans)
+            SidebarView(
+                selectedSidebarItem: $selectedSidebarItem,
+                courses: courses,
+                studyPlans: studyPlans,
+                inboxCount: 3
+            )
         } detail: {
             NavigationStack(path: $path) {
                 Group {
                     switch selectedSidebarItem {
+                    case .inbox:
+                        Text("TODO")
                     case let .course(course):
                         CourseView(path: $path, course: course)
                     case let .studyPlan(studyPlan):
