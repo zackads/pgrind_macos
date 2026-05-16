@@ -7,6 +7,7 @@ import SwiftData
 import SwiftUI
 
 struct StudyPlanView: View {
+    @Environment(\.modelContext) private var modelContext
     let studyPlan: StudyPlan
 
     var body: some View {
@@ -36,12 +37,29 @@ struct StudyPlanView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button("Run", systemImage: "play.fill") {
-                    
+                    runStudyPlan()
                 }
                 .help("Run")
             }
         }
         .formStyle(.grouped)
         .navigationTitle(studyPlan.name)
+    }
+
+    private func runStudyPlan() {
+        let selectedCourses = studyPlan.courseSelectionMethod.select(
+            n: studyPlan.courseCountPerTrigger,
+            from: studyPlan.courses
+        )
+        for course in selectedCourses {
+            let problems = studyPlan.problemSelectionMethod.select(
+                n: studyPlan.problemCountPerTrigger,
+                from: course
+            )
+            for problem in problems {
+                problem.inInbox = true
+            }
+        }
+        try? modelContext.save()
     }
 }

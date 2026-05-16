@@ -25,6 +25,8 @@ final class ImageProblem {
 
     var createdDate: Date
 
+    var inInbox: Bool = false
+
     @Relationship
     var problemSet: ProblemSet
 

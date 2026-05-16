@@ -53,6 +53,7 @@ struct RecordAttemptView: View {
                             notes: notes
                         )
                     )
+                    problem.inInbox = false
 
                     dismiss()
                 }

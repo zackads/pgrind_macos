@@ -20,6 +20,7 @@ struct Home: View {
     @Query(sort: \Course.createdDate, order: .forward) private var courses: [Course]
     @Query(sort: \ProblemSet.createdDate, order: .forward) private var problemSets: [ProblemSet]
     @Query(sort: \ImageProblem.createdDate, order: .forward) private var problems: [ImageProblem]
+    @Query(filter: #Predicate<ImageProblem> { $0.inInbox }, sort: \ImageProblem.createdDate, order: .forward) private var inboxProblems: [ImageProblem]
     @Query(sort: \StudyPlan.createdDate, order: .forward) private var studyPlans: [StudyPlan]
 
     @State private var path: [Route] = []
@@ -47,14 +48,14 @@ struct Home: View {
                 selectedSidebarItem: $selectedSidebarItem,
                 courses: courses,
                 studyPlans: studyPlans,
-                inboxCount: 3
+                inboxCount: inboxProblems.count
             )
         } detail: {
             NavigationStack(path: $path) {
                 Group {
                     switch selectedSidebarItem {
                     case .inbox:
-                        Text("TODO")
+                        InboxView(path: $path, problems: inboxProblems)
                     case let .course(course):
                         CourseView(path: $path, course: course)
                     case let .studyPlan(studyPlan):
