@@ -15,6 +15,7 @@ class StudyPlan {
     /// The Courses from which Problems should be selected at the point of triggering
     var courses: [Course]
     var createdDate: Date = Date()
+    var lastRunDate: Date?
 
     /// How many Courses to select per trigger
     var courseCountPerTrigger: Int
@@ -40,6 +41,19 @@ class StudyPlan {
     var problemSelectionMethod: ProblemSelectionMethod {
         get { (try? JSONDecoder().decode(ProblemSelectionMethod.self, from: problemSelectionMethodData)) ?? .uniform }
         set { problemSelectionMethodData = (try? JSONEncoder().encode(newValue)) ?? Data() }
+    }
+
+    /// Apply this plan's selection rules and add the resulting problems to the user's Inbox.
+    @MainActor
+    func run(now: Date = .now) {
+        let selectedCourses = courseSelectionMethod.select(n: courseCountPerTrigger, from: courses)
+        for course in selectedCourses {
+            let problems = problemSelectionMethod.select(n: problemCountPerTrigger, from: course)
+            for problem in problems {
+                problem.inInbox = true
+            }
+        }
+        lastRunDate = now
     }
 
     init(name: String, courses: [Course], schedule: StudySchedule, courseCountPerTrigger: Int, courseSelectionMethod: CourseSelectionMethod, problemsPerCourse: Int, problemSelectionMethod: ProblemSelectionMethod) {

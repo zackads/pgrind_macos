@@ -19,9 +19,18 @@ struct pgrindApp: App {
         }
     }()
 
+    @State private var scheduler: StudyPlanScheduler?
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .task {
+                    if scheduler == nil {
+                        let s = StudyPlanScheduler(modelContext: sharedModelContainer.mainContext)
+                        s.start()
+                        scheduler = s
+                    }
+                }
         }
         .modelContainer(sharedModelContainer)
 

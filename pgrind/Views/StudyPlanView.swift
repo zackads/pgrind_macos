@@ -47,19 +47,7 @@ struct StudyPlanView: View {
     }
 
     private func runStudyPlan() {
-        let selectedCourses = studyPlan.courseSelectionMethod.select(
-            n: studyPlan.courseCountPerTrigger,
-            from: studyPlan.courses
-        )
-        for course in selectedCourses {
-            let problems = studyPlan.problemSelectionMethod.select(
-                n: studyPlan.problemCountPerTrigger,
-                from: course
-            )
-            for problem in problems {
-                problem.inInbox = true
-            }
-        }
+        studyPlan.run()
         try? modelContext.save()
     }
 }

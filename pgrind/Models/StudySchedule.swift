@@ -28,6 +28,25 @@ enum StudySchedule: Codable, Hashable {
     }
 }
 
+extension StudySchedule {
+    /// The next moment strictly after `date` that matches this schedule.
+    func nextFireDate(after date: Date, calendar: Calendar = .current) -> Date? {
+        var components = DateComponents()
+        switch self {
+        case .daily(let hour, let minute):
+            components.hour = hour
+            components.minute = minute
+        case .weekly(let day, let hour, let minute):
+            // Calendar.weekday is 1 = Sunday … 7 = Saturday; our Weekday is 1 = Monday … 7 = Sunday.
+            components.weekday = day == .sunday ? 1 : day.rawValue + 1
+            components.hour = hour
+            components.minute = minute
+        }
+        components.second = 0
+        return calendar.nextDate(after: date, matching: components, matchingPolicy: .nextTime)
+    }
+}
+
 extension StudySchedule: CustomStringConvertible {
     var description: String {
         switch self {
