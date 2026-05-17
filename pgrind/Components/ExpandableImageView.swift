@@ -58,13 +58,14 @@ struct ExpandedImageView: View {
     @State private var lastScale: CGFloat = 1.0
 
     var body: some View {
+        let fittedSize = fittedImageSize()
         return VStack(spacing: 16) {
             ScrollView([.horizontal, .vertical]) {
                 Image(nsImage: image)
                     .resizable()
                     .interpolation(.high)
                     .scaledToFit()
-                    .scaleEffect(scale, anchor: .top)
+                    .frame(width: fittedSize.width * scale, height: fittedSize.height * scale)
                     .animation(.none, value: scale) // prevent implicit animations during pinch
                     .gesture(
                         MagnificationGesture()
@@ -81,6 +82,7 @@ struct ExpandedImageView: View {
                         }
                     }
             }
+            .frame(width: fittedSize.width, height: fittedSize.height)
             .padding()
 
             HStack {
@@ -96,6 +98,18 @@ struct ExpandedImageView: View {
             .padding(.bottom)
         }
         .presentationSizing(.fitted)
+    }
+
+    private func fittedImageSize() -> CGSize {
+        let screen = NSScreen.main?.visibleFrame.size ?? CGSize(width: 1440, height: 900)
+        let maxW = screen.width * 0.85
+        let maxH = screen.height * 0.85
+        let imgSize = image.size
+        guard imgSize.width > 0, imgSize.height > 0 else {
+            return CGSize(width: maxW, height: maxH)
+        }
+        let ratio = min(maxW / imgSize.width, maxH / imgSize.height)
+        return CGSize(width: imgSize.width * ratio, height: imgSize.height * ratio)
     }
 }
 
