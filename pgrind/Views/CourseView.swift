@@ -18,6 +18,7 @@ struct CourseView: View {
     @State private var renameText: String = ""
     @State private var deletingProblemSet: ProblemSet?
     @State private var addingProblemTo: ProblemSet?
+    @State private var collapsedProblemSets: Set<PersistentIdentifier> = []
 
     private var isRenaming: Binding<Bool> {
         Binding(
@@ -33,10 +34,21 @@ struct CourseView: View {
         )
     }
 
+    private func isExpanded(_ ps: ProblemSet) -> Binding<Bool> {
+        Binding(
+            get: { !collapsedProblemSets.contains(ps.persistentModelID) },
+            set: { expanded in
+                if expanded {
+                    collapsedProblemSets.remove(ps.persistentModelID)
+                } else {
+                    collapsedProblemSets.insert(ps.persistentModelID)
+                }
+            }
+        )
+    }
+
     private func row(for ps: ProblemSet) -> some View {
-        VStack(alignment: .leading) {
-            Text(ps.name)
-                .font(.title3)
+        DisclosureGroup(isExpanded: isExpanded(ps)) {
             ProblemsGalleryView(
                 problems: ps.sortedProblems,
                 onSelect: { problem in
@@ -46,6 +58,9 @@ struct CourseView: View {
                     addingProblemTo = ps
                 }
             )
+        } label: {
+            Text(ps.name)
+                .font(.title3)
         }
         .tag(ps)
         .contextMenu {
@@ -80,6 +95,24 @@ struct CourseView: View {
         }
         .navigationTitle(course.title)
         .toolbar {
+            let allCollapsed = !course.problemSets.isEmpty
+                && course.problemSets.allSatisfy { collapsedProblemSets.contains($0.persistentModelID) }
+            Button {
+                if allCollapsed {
+                    collapsedProblemSets.removeAll()
+                } else {
+                    collapsedProblemSets = Set(course.problemSets.map(\.persistentModelID))
+                }
+            } label: {
+                Label(
+                    allCollapsed ? "Expand all" : "Collapse all",
+                    systemImage: allCollapsed
+                        ? "rectangle.expand.vertical"
+                        : "rectangle.compress.vertical"
+                )
+            }
+            .labelStyle(.titleAndIcon)
+
             Button {
                 showingAddProblemSet = true
             } label: {
