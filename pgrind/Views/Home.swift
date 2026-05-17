@@ -31,7 +31,7 @@ struct Home: View {
         case studyPlan(StudyPlan)
     }
 
-    @State private var selectedSidebarItem: SidebarItem?
+    @State private var selectedSidebarItem: SidebarItem? = .inbox
     var selectedCourse: Course? {
         if case let .course(course) = selectedSidebarItem { return course }
         return nil
