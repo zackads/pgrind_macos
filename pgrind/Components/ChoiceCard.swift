@@ -55,10 +55,17 @@ struct ChoiceCard: View {
     }
 }
 
+private let previewSummary = """
+This course covers the fundamentals of mathematical analysis: convergence of sequences and series, \
+continuity, differentiability, Riemann integral, sequences and series of functions, uniformity, and the \
+interchange of limit operations. It shows the utility of abstract concepts through a study of real numbers, \
+and teaches an understanding and construction of proofs.
+"""
+
 #Preview("With summary and hyperlink") {
     ChoiceCard(
         title: "MIT 18.100A | Real Analysis | Fall 2020",
-        summary: "This course covers the fundamentals of mathematical analysis: convergence of sequences and series, continuity, differentiability, Riemann integral, sequences and series of functions, uniformity, and the interchange of limit operations. It shows the utility of abstract concepts through a study of real numbers, and teaches an understanding and construction of proofs.",
+        summary: previewSummary,
         hyperlink: URL(string: "https://ocw.mit.edu/courses/18-100a-real-analysis-fall-2020/")
     )
 }
@@ -73,6 +80,6 @@ struct ChoiceCard: View {
 #Preview("No hyperlink") {
     ChoiceCard(
         title: "MIT 18.100A | Real Analysis | Fall 2020",
-        summary: "This course covers the fundamentals of mathematical analysis: convergence of sequences and series, continuity, differentiability, Riemann integral, sequences and series of functions, uniformity, and the interchange of limit operations. It shows the utility of abstract concepts through a study of real numbers, and teaches an understanding and construction of proofs."
+        summary: previewSummary
     )
 }

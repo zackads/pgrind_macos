@@ -10,7 +10,7 @@ import SwiftUI
 struct ProblemsGalleryView: View {
     let problems: [ImageProblem]
     var onSelect: (ImageProblem) -> Void
-    var onAdd: (() -> Void)? = nil
+    var onAdd: (() -> Void)?
     private let thumbSizeY: CGFloat = 300
     private var columns: [GridItem] {
         [GridItem(.adaptive(minimum: 350), spacing: 12)]
@@ -128,8 +128,8 @@ private struct GalleryCell: View {
     }
 
     private func computedHeight(for width: CGFloat) -> CGFloat {
-        guard let p = problem as? ImageProblem,
-              let img = NSImage(data: p.questionImage),
+        guard let imageProblem = problem as? ImageProblem,
+              let img = NSImage(data: imageProblem.questionImage),
               img.size.width > 0
         else {
             return sizeY

@@ -15,7 +15,7 @@ enum SchemaV1: VersionedSchema {
             ImageProblem.self,
             Attempt.self,
             ScreenshotItem.self,
-            StudyPlan.self,
+            StudyPlan.self
         ]
     }
 }

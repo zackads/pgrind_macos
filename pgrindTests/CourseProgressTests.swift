@@ -10,7 +10,7 @@ struct CourseProgressTests {
             Course.self,
             ProblemSet.self,
             ImageProblem.self,
-            Attempt.self,
+            Attempt.self
         ])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         return try ModelContainer(for: schema, configurations: [config])

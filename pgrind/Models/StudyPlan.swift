@@ -5,8 +5,8 @@
 //  Created by Zack Adlington on 16/05/2026.
 //
 
-import SwiftData
 import Foundation
+import SwiftData
 
 @Model
 class StudyPlan {
@@ -46,9 +46,9 @@ class StudyPlan {
     /// Apply this plan's selection rules and add the resulting problems to the user's Inbox.
     @MainActor
     func run(now: Date = .now) {
-        let selectedCourses = courseSelectionMethod.select(n: courseCountPerTrigger, from: courses)
+        let selectedCourses = courseSelectionMethod.select(count: courseCountPerTrigger, from: courses)
         for course in selectedCourses {
-            let problems = problemSelectionMethod.select(n: problemCountPerTrigger, from: course)
+            let problems = problemSelectionMethod.select(count: problemCountPerTrigger, from: course)
             for problem in problems {
                 problem.inInbox = true
             }
@@ -56,26 +56,36 @@ class StudyPlan {
         lastRunDate = now
     }
 
-    init(name: String, courses: [Course], schedule: StudySchedule, courseCountPerTrigger: Int, courseSelectionMethod: CourseSelectionMethod, problemsPerCourse: Int, problemSelectionMethod: ProblemSelectionMethod) {
+    init(
+        name: String,
+        courses: [Course],
+        schedule: StudySchedule,
+        courseCountPerTrigger: Int,
+        courseSelectionMethod: CourseSelectionMethod,
+        problemsPerCourse: Int,
+        problemSelectionMethod: ProblemSelectionMethod
+    ) {
         self.name = name
         self.courses = courses
         self.courseCountPerTrigger = courseCountPerTrigger
-        self.problemCountPerTrigger = problemsPerCourse
-        self.scheduleData = (try? JSONEncoder().encode(schedule)) ?? Data()
-        self.courseSelectionMethodData = (try? JSONEncoder().encode(courseSelectionMethod)) ?? Data()
-        self.problemSelectionMethodData = (try? JSONEncoder().encode(problemSelectionMethod)) ?? Data()
+        problemCountPerTrigger = problemsPerCourse
+        scheduleData = (try? JSONEncoder().encode(schedule)) ?? Data()
+        courseSelectionMethodData = (try? JSONEncoder().encode(courseSelectionMethod)) ?? Data()
+        problemSelectionMethodData = (try? JSONEncoder().encode(problemSelectionMethod)) ?? Data()
     }
 }
 
 enum CourseSelectionMethod: Codable, Hashable, CustomStringConvertible, Identifiable, CaseIterable {
     case all
     case uniformRandom
-    case weighted([PersistentIdentifier:Double])
+    case weighted([PersistentIdentifier: Double])
     case fewestAttempts
     case greatestDifficulty
-    
-    var id: String { description }
-    
+
+    var id: String {
+        description
+    }
+
     var description: String {
         switch self {
         case .all: "Include problems from each course."
@@ -85,25 +95,25 @@ enum CourseSelectionMethod: Codable, Hashable, CustomStringConvertible, Identifi
         case .greatestDifficulty: "Select the course(s) with the greatest overall difficulty."
         }
     }
-    
+
     static var allCases: [CourseSelectionMethod] {
         [.all, .uniformRandom, .weighted([:]), .fewestAttempts, .greatestDifficulty]
     }
-    
-    func select(n: Int, from courses: [Course]) -> [Course] {
+
+    func select(count: Int, from courses: [Course]) -> [Course] {
         switch self {
         case .all:
-            // If the user selects .all, ignore n and return all Courses
+            // If the user selects .all, ignore count and return all Courses
             return courses
         case .uniformRandom:
-            return Array(courses.shuffled().prefix(n))
-        case .weighted(let weights):
+            return Array(courses.shuffled().prefix(count))
+        case let .weighted(weights):
             guard let pick = courses.weightedRandomElement({ weights[$0.persistentModelID] ?? 0 }) else { return [] }
             return [pick]
         case .fewestAttempts:
-            return Array(courses.sorted(by: { $0.attempted.count < $1.attempted.count }).prefix(n))
+            return Array(courses.sorted(by: { $0.attempted.count < $1.attempted.count }).prefix(count))
         case .greatestDifficulty:
-            return Array(courses.sorted(by: { $0.difficulty > $1.difficulty }).prefix(n))
+            return Array(courses.sorted(by: { $0.difficulty > $1.difficulty }).prefix(count))
         }
     }
 }
@@ -113,39 +123,39 @@ enum ProblemSelectionMethod: Codable, Hashable, CustomStringConvertible {
     case unattempted
     case difficulties(Set<Difficulty>)
     case unattemptedBiasedEarlier(decay: Double)
-    
+
     var description: String {
         switch self {
         case .uniform: "Select uniformly at random from all problems."
         case .unattempted: "Select uniformly at random from problems that haven't been attempted."
-        case .difficulties(let difficulties): "Select uniformly at random from problems with selected difficulties."
+        case let .difficulties(difficulties): "Select uniformly at random from problems with selected difficulties."
         case .unattemptedBiasedEarlier: "Select uniformly at random from all problems that haven't been attempted, with bias towards those earlier in the course."
         }
     }
-    
-    func select(n: Int, from course: Course) -> [ImageProblem] {
+
+    func select(count: Int, from course: Course) -> [ImageProblem] {
         // TODO: Need to alert the user when selection failed, rather than silently falling back to random selection?
         switch self {
         case .uniform:
-            return Array(course.problems.shuffled().prefix(n))
+            return Array(course.problems.shuffled().prefix(count))
         case .unattempted:
-            guard !course.unattempted.isEmpty else { return Array(course.problems.shuffled().prefix(n)) } // Fall back to uniform random selection
-            return Array(course.unattempted.shuffled().prefix(n))
-        case .difficulties(let difficulties):
+            guard !course.unattempted.isEmpty else { return Array(course.problems.shuffled().prefix(count)) } // Fall back to uniform random selection
+            return Array(course.unattempted.shuffled().prefix(count))
+        case let .difficulties(difficulties):
             let candidates = course.problems.filter { difficulties.contains($0.currentDifficulty) }
-            guard !candidates.isEmpty else { return Array(course.problems.shuffled().prefix(n)) } // Fall back to uniform random selection
-            return Array(candidates.shuffled().prefix(n))
-        case .unattemptedBiasedEarlier(let decay):
-            guard !course.unattempted.isEmpty else { return Array(course.problems.shuffled().prefix(n)) }
-            
+            guard !candidates.isEmpty else { return Array(course.problems.shuffled().prefix(count)) } // Fall back to uniform random selection
+            return Array(candidates.shuffled().prefix(count))
+        case let .unattemptedBiasedEarlier(decay):
+            guard !course.unattempted.isEmpty else { return Array(course.problems.shuffled().prefix(count)) }
+
             // Exponential decay
             let weighted: [(ImageProblem, Double)] = course.unattempted.enumerated().map { offset, problem in
                 (problem, pow(decay, Double(offset)))
             }
-            
+
             var selected: [ImageProblem] = []
             var remaining = weighted
-            for _ in 0..<min(n, remaining.count) {
+            for _ in 0 ..< min(count, remaining.count) {
                 if let pick = remaining.weightedRandomElement({ $0.1 }) {
                     selected.append(pick.0)
                     remaining.removeAll { $0.0.id == pick.0.id }
@@ -164,7 +174,7 @@ extension BidirectionalCollection {
     func weightedRandomElement(_ weight: (Element) -> Double) -> Element? {
         let total = reduce(0) { $0 + weight($1) }
         guard total > 0 else { return nil }
-        var roll = Double.random(in: 0..<total)
+        var roll = Double.random(in: 0 ..< total)
         for element in self {
             roll -= weight(element)
             if roll < 0 { return element }

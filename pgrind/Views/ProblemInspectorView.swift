@@ -52,10 +52,10 @@ struct ProblemInspectorView: View {
         return "Problem"
     }
 
-    private func imageProblemInspector(_ p: ImageProblem) -> some View {
+    private func imageProblemInspector(_ imageProblem: ImageProblem) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Group {
-                if let img = NSImage(data: p.questionImage) {
+                if let img = NSImage(data: imageProblem.questionImage) {
                     ExpandableImageView(image: img)
                 } else {
                     ContentUnavailableView("Missing question image", systemImage: "photo")
@@ -67,12 +67,12 @@ struct ProblemInspectorView: View {
 
             Group {
                 // Always show existing solution image if present
-                if let data = p.solutionImage, let img = NSImage(data: data) {
+                if let data = imageProblem.solutionImage, let img = NSImage(data: data) {
                     ExpandableImageView(image: img)
                 }
 
                 // Show capture/editor UI when there is no existing solution, or when editing has begun
-                if p.solutionImage == nil || editing || !solutionImagesData.isEmpty {
+                if imageProblem.solutionImage == nil || editing || !solutionImagesData.isEmpty {
                     if !solutionImagesData.isEmpty {
                         VStack(spacing: 12) {
                             PiledImagesView(imagesData: solutionImagesData)
@@ -109,7 +109,10 @@ struct ProblemInspectorView: View {
                                 }
                             }
                         } label: {
-                            Label(p.solutionImage == nil ? "Take a screenshot" : "Add a screenshot", systemImage: "camera.viewfinder")
+                            Label(
+                                imageProblem.solutionImage == nil ? "Take a screenshot" : "Add a screenshot",
+                                systemImage: "camera.viewfinder"
+                            )
                         }
                     }
                 }
@@ -121,13 +124,13 @@ struct ProblemInspectorView: View {
                     Button {
                         // Merge existing solution image (if any) with new screenshots, top-to-bottom
                         var imagesToMerge: [Data] = []
-                        if let existing = p.solutionImage {
+                        if let existing = imageProblem.solutionImage {
                             imagesToMerge.append(existing)
                         }
                         imagesToMerge.append(contentsOf: solutionImagesData)
 
                         if let mergedSolution = Screenshotter.mergeImagesVertically(from: imagesToMerge) {
-                            p.solutionImage = mergedSolution
+                            imageProblem.solutionImage = mergedSolution
                         }
 
                         do {
@@ -163,7 +166,7 @@ struct ProblemInspectorView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            if let d = problem.lastAttempted {
+            if problem.lastAttempted != nil {
                 Text("Attempts")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -219,10 +222,15 @@ private struct AttemptsHeatmap: View {
 
 #Preview {
     // In-memory container so relationships behave like the real app.
-    let container = try! ModelContainer(
-        for: Course.self, ProblemSet.self, ImageProblem.self, Attempt.self,
-        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-    )
+    let container: ModelContainer
+    do {
+        container = try ModelContainer(
+            for: Course.self, ProblemSet.self, ImageProblem.self, Attempt.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+    } catch {
+        fatalError("Failed to create preview container: \(error)")
+    }
 
     let context = container.mainContext
 

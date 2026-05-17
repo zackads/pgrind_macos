@@ -33,7 +33,6 @@ struct CourseView: View {
         )
     }
 
-    @ViewBuilder
     private func row(for ps: ProblemSet) -> some View {
         VStack(alignment: .leading) {
             Text(ps.name)

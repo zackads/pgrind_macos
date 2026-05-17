@@ -33,10 +33,10 @@ extension StudySchedule {
     func nextFireDate(after date: Date, calendar: Calendar = .current) -> Date? {
         var components = DateComponents()
         switch self {
-        case .daily(let hour, let minute):
+        case let .daily(hour, minute):
             components.hour = hour
             components.minute = minute
-        case .weekly(let day, let hour, let minute):
+        case let .weekly(day, hour, minute):
             // Calendar.weekday is 1 = Sunday … 7 = Saturday; our Weekday is 1 = Monday … 7 = Sunday.
             components.weekday = day == .sunday ? 1 : day.rawValue + 1
             components.hour = hour
@@ -50,16 +50,16 @@ extension StudySchedule {
 extension StudySchedule: CustomStringConvertible {
     var description: String {
         switch self {
-        case .daily(let hour, let minute):
+        case let .daily(hour, minute):
             return "Daily at \(formattedTime(hour: hour, minute: minute))"
-        case .weekly(let day, let hour, let minute):
+        case let .weekly(day, hour, minute):
             return "Every \(day) at \(formattedTime(hour: hour, minute: minute))"
         }
     }
 
     private func formattedTime(hour: Int, minute: Int) -> String {
         let period = hour < 12 ? "AM" : "PM"
-        let h = hour % 12 == 0 ? 12 : hour % 12
-        return String(format: "%d:%02d %@", h, minute, period)
+        let hour12 = hour % 12 == 0 ? 12 : hour % 12
+        return String(format: "%d:%02d %@", hour12, minute, period)
     }
 }

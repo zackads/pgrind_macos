@@ -90,9 +90,9 @@ struct ProblemDetailView: View {
                     // If the problem is currently being shown in the navigation path, pop it first
                     if let last = path.last {
                         switch last {
-                        case let .viewProblem(p) where p.persistentModelID == problem.persistentModelID:
+                        case let .viewProblem(other) where other.persistentModelID == problem.persistentModelID:
                             _ = path.popLast()
-                        case let .recordAttempt(p) where p.persistentModelID == problem.persistentModelID:
+                        case let .recordAttempt(other) where other.persistentModelID == problem.persistentModelID:
                             _ = path.popLast()
                         default:
                             break

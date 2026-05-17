@@ -28,11 +28,11 @@ struct CreateProblemSet: View {
 
             ToolbarItem(placement: .confirmationAction) {
                 Button("Continue") {
-                    let trimmed_name = problemSetName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let trimmedName = problemSetName.trimmingCharacters(in: .whitespacesAndNewlines)
 
                     let newProblemSet = ProblemSet(
                         course: course,
-                        name: trimmed_name
+                        name: trimmedName
                     )
 
                     course.problemSets.append(newProblemSet)

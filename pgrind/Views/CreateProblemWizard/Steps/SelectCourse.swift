@@ -29,8 +29,8 @@ struct SelectCourse: View {
                             title: choice.title,
                             summary: choice.summary,
                             isSelected: {
-                                if case let .existing(c) = selection {
-                                    return c == choice
+                                if case let .existing(existing) = selection {
+                                    return existing == choice
                                 } else {
                                     return false
                                 }
@@ -138,7 +138,13 @@ private struct SelectCourseWithCoursesPreviewHost: View {
             context.insert(
                 Course(
                     title: "MIT 6.033 | Computer System Engineering | Spring 2018",
-                    summary: "This class covers topics on the engineering of computer software and hardware systems. Topics include techniques for controlling complexity; strong modularity using client-server design, operating systems; performance, networks; naming; security and privacy; fault-tolerant systems, atomicity and coordination of concurrent activities, and recovery; impact of computer systems on society.",
+                    summary: """
+                    This class covers topics on the engineering of computer software and hardware systems. \
+                    Topics include techniques for controlling complexity; strong modularity using client-server \
+                    design, operating systems; performance, networks; naming; security and privacy; fault-tolerant \
+                    systems, atomicity and coordination of concurrent activities, and recovery; impact of computer \
+                    systems on society.
+                    """,
                     hyperlink: "https://ocw.mit.edu/courses/6-033-computer-system-engineering-spring-2018/"
                 )
             )
@@ -146,7 +152,12 @@ private struct SelectCourseWithCoursesPreviewHost: View {
             context.insert(
                 Course(
                     title: "MIT 18.100A | Real Analysis | Fall 2020",
-                    summary: "This course covers the fundamentals of mathematical analysis: convergence of sequences and series, continuity, differentiability, Riemann integral, sequences and series of functions, uniformity, and the interchange of limit operations. It shows the utility of abstract concepts through a study of real numbers, and teaches an understanding and construction of proofs.",
+                    summary: """
+                    This course covers the fundamentals of mathematical analysis: convergence of sequences and \
+                    series, continuity, differentiability, Riemann integral, sequences and series of functions, \
+                    uniformity, and the interchange of limit operations. It shows the utility of abstract concepts \
+                    through a study of real numbers, and teaches an understanding and construction of proofs.
+                    """,
                     hyperlink: "https://ocw.mit.edu/courses/18-100a-real-analysis-fall-2020/"
                 )
             )

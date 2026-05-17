@@ -6,7 +6,9 @@ struct ReplaceImageSheet: View {
         case question
         case solution
 
-        var id: String { rawValue }
+        var id: String {
+            rawValue
+        }
 
         var title: String {
             switch self {

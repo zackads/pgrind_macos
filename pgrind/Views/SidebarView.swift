@@ -101,7 +101,7 @@ struct SidebarView: View {
             .tag(Home.SidebarItem.inbox)
         }
     }
-    
+
     private var coursesSection: some View {
         Section {
             ForEach(courses) { course in

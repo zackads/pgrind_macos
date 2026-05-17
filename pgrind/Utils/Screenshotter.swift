@@ -96,11 +96,11 @@ class Screenshotter {
         NSColor.white.set()
         NSRect(x: 0, y: 0, width: maxPixelWidth, height: totalPixelHeight).fill()
 
-        var y = totalPixelHeight
+        var posY = totalPixelHeight
         for rep in reps {
-            y -= rep.pixelsHigh
-            let x = (maxPixelWidth - rep.pixelsWide) / 2
-            let rect = NSRect(x: x, y: y, width: rep.pixelsWide, height: rep.pixelsHigh)
+            posY -= rep.pixelsHigh
+            let posX = (maxPixelWidth - rep.pixelsWide) / 2
+            let rect = NSRect(x: posX, y: posY, width: rep.pixelsWide, height: rep.pixelsHigh)
             // Force a 1:1 pixel draw by temporarily matching the rep's logical size to its pixel dims.
             let originalSize = rep.size
             rep.size = NSSize(width: rep.pixelsWide, height: rep.pixelsHigh)

@@ -27,8 +27,8 @@ struct SelectProblemSet: View {
                         ChoiceCard(
                             title: choice.name,
                             isSelected: {
-                                if case let .existing(c) = selection {
-                                    return c == choice
+                                if case let .existing(existing) = selection {
+                                    return existing == choice
                                 } else {
                                     return false
                                 }

@@ -1,32 +1,33 @@
 //
-//  AddProblemSetSheet.swift
+//  AddProblemSetView.swift
 //  pgrind
 //
 //  Created by Zack Adlington on 15/05/2026.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct AddProblemSetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    
+
     let course: Course
-    
+
     enum Route: Hashable {
         case addProblemQuestion(ProblemSet)
         case addProblemSolution(ProblemSet, ImageProblem)
     }
+
     @State private var path: [Route] = []
-    
+
     @State private var name: String = ""
     @State private var problemSet: ProblemSet?
     @State private var problems: [ImageProblem] = []
-    
+
     @State var questionImagesData: [Data] = []
     @State var solutionImagesData: [Data] = []
-    
+
     var body: some View {
         NavigationStack(path: $path) {
             Form {
@@ -42,12 +43,12 @@ struct AddProblemSetView: View {
                         dismiss()
                     }
                 }
-                
+
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add new problem") {
                         let newSet = ProblemSet(
                             course: course,
-                            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+                            name: name.trimmingCharacters(in: .whitespacesAndNewlines)
                         )
                         modelContext.insert(newSet)
                         problemSet = newSet
@@ -58,7 +59,7 @@ struct AddProblemSetView: View {
             }
             .navigationDestination(for: Route.self) { route in
                 switch route {
-                case .addProblemQuestion(let ps):
+                case let .addProblemQuestion(ps):
                     Form {
                         Section("Problem image") {
                             Text("Take a screenshot of the problem.")
@@ -66,7 +67,7 @@ struct AddProblemSetView: View {
                             Text("For example, you can screenshot a past exam paper question from a .pdf file.")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
-                            
+
                             if !questionImagesData.isEmpty {
                                 VStack(spacing: 12) {
                                     PiledImagesView(imagesData: questionImagesData)
@@ -83,7 +84,7 @@ struct AddProblemSetView: View {
                                         }
                                         .buttonStyle(.bordered)
                                         .controlSize(.large)
-                                        
+
                                         Button(role: .destructive) {
                                             questionImagesData.removeAll()
                                         } label: {
@@ -120,9 +121,9 @@ struct AddProblemSetView: View {
                                         problemSet: ps,
                                         questionImage: mergedQuestion
                                     )
-                                    
+
                                     ps.problems.append(ip)
-                                    
+
                                     do {
                                         try modelContext.save()
                                         questionImagesData = []
@@ -135,7 +136,7 @@ struct AddProblemSetView: View {
                             .disabled(questionImagesData.isEmpty)
                         }
                     }
-                case .addProblemSolution(let ps, let ip):
+                case let .addProblemSolution(ps, ip):
                     Form {
                         Section("Solution image") {
                             Text("Take a screenshot of the solution.")
@@ -143,7 +144,7 @@ struct AddProblemSetView: View {
                             Text("For example, a worked solution from a .pdf of a past exam paper or problem sheet.")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
-                            
+
                             if !solutionImagesData.isEmpty {
                                 VStack(spacing: 12) {
                                     PiledImagesView(imagesData: solutionImagesData)
@@ -160,7 +161,7 @@ struct AddProblemSetView: View {
                                         }
                                         .buttonStyle(.bordered)
                                         .controlSize(.large)
-                                        
+
                                         Button(role: .destructive) {
                                             solutionImagesData.removeAll()
                                         } label: {
@@ -195,7 +196,7 @@ struct AddProblemSetView: View {
                                 if !(solutionImagesData == []), let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
                                     ip.solutionImage = mergedSolution
                                 }
-                                
+
                                 do {
                                     try modelContext.save()
                                     solutionImagesData = []
@@ -205,13 +206,13 @@ struct AddProblemSetView: View {
                                 }
                             }
                         }
-                            
+
                         ToolbarItem(placement: .automatic) {
                             Button("Save and finish") {
                                 if !(solutionImagesData == []), let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
                                     ip.solutionImage = mergedSolution
                                 }
-                                
+
                                 do {
                                     try modelContext.save()
                                     dismiss()

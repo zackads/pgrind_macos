@@ -121,7 +121,12 @@ struct Home: View {
     ])
 
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: schema, configurations: [config])
+    let container: ModelContainer
+    do {
+        container = try ModelContainer(for: schema, configurations: [config])
+    } catch {
+        fatalError("Failed to create preview container: \(error)")
+    }
 
     let context = container.mainContext
 

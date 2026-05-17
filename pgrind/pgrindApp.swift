@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 @main
-struct pgrindApp: App {
+struct PgrindApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema(versionedSchema: SchemaV1.self)
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
@@ -26,9 +26,9 @@ struct pgrindApp: App {
             ContentView()
                 .task {
                     if scheduler == nil {
-                        let s = StudyPlanScheduler(modelContext: sharedModelContainer.mainContext)
-                        s.start()
-                        scheduler = s
+                        let newScheduler = StudyPlanScheduler(modelContext: sharedModelContainer.mainContext)
+                        newScheduler.start()
+                        scheduler = newScheduler
                     }
                 }
         }

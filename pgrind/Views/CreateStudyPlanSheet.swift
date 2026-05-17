@@ -26,7 +26,10 @@ struct CreateStudyPlanSheet: View {
 
     private enum ScheduleKind: String, CaseIterable, Identifiable {
         case daily, weekly
-        var id: String { rawValue }
+        var id: String {
+            rawValue
+        }
+
         var label: String {
             switch self {
             case .daily: "Daily"
@@ -37,7 +40,10 @@ struct CreateStudyPlanSheet: View {
 
     private enum ProblemSelectionKind: String, CaseIterable, Identifiable {
         case uniform, unattempted, difficulties, unattemptedBiasedEarlier
-        var id: String { rawValue }
+        var id: String {
+            rawValue
+        }
+
         var label: String {
             switch self {
             case .uniform: "Uniform random"
@@ -120,7 +126,7 @@ struct CreateStudyPlanSheet: View {
                                 get: { Double(problemsPerCourse) },
                                 set: { problemsPerCourse = max(1, Int($0)) }
                             ),
-                            in: 0...5,
+                            in: 0 ... 5,
                             step: 1
                         )
                     }
@@ -148,7 +154,7 @@ struct CreateStudyPlanSheet: View {
                             Text("Decay: \(String(format: "%.2f", unattemptedDecay))")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
-                            Slider(value: $unattemptedDecay, in: 0.5...0.99, step: 0.01)
+                            Slider(value: $unattemptedDecay, in: 0.5 ... 0.99, step: 0.01)
                         }
                     }
                 }

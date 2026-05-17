@@ -22,8 +22,8 @@ struct RecordAttemptView: View {
             HStack {
                 Spacer()
                 Picker("", selection: $selectedDifficulty) {
-                    ForEach(Difficulty.allCases.filter { $0 != .notAttempted }, id: \.self) { d in
-                        Text(String(describing: d)).tag(d)
+                    ForEach(Difficulty.allCases.filter { $0 != .notAttempted }, id: \.self) { difficulty in
+                        Text(String(describing: difficulty)).tag(difficulty)
                     }
                 }
                 .pickerStyle(.segmented)
