@@ -69,7 +69,7 @@ struct RecordImageProblemAttemptView: View {
     }
 
     var problem: ImageProblem
-    @State private var selectedTab: Tab = .solution
+    @State private var selectedTab: Tab = .question
 
     var body: some View {
         TabView(selection: $selectedTab) {
