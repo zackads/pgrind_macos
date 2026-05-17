@@ -37,9 +37,15 @@ struct CourseView: View {
         VStack(alignment: .leading) {
             Text(ps.name)
                 .font(.title3)
-            ProblemsGalleryView(problems: ps.sortedProblems) { problem in
-                path.append(.viewProblem(problem))
-            }
+            ProblemsGalleryView(
+                problems: ps.sortedProblems,
+                onSelect: { problem in
+                    path.append(.viewProblem(problem))
+                },
+                onAdd: {
+                    addProblem(to: ps)
+                }
+            )
         }
         .tag(ps)
         .contextMenu {
@@ -60,6 +66,22 @@ struct CourseView: View {
             ps.name = trimmed
         }
         renamingProblemSet = nil
+    }
+
+    private func addProblem(to problemSet: ProblemSet) {
+        Task { @MainActor in
+            guard let imageData = await Screenshotter.takeScreenshot() else { return }
+            let problem = ImageProblem(
+                problemSet: problemSet,
+                questionImage: imageData
+            )
+            problemSet.problems.append(problem)
+            do {
+                try modelContext.save()
+            } catch {
+                print("Failed to save new problem: \(error)")
+            }
+        }
     }
 
     private func confirmDelete() {

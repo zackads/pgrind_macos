@@ -10,6 +10,7 @@ import SwiftUI
 struct ProblemsGalleryView: View {
     let problems: [ImageProblem]
     var onSelect: (ImageProblem) -> Void
+    var onAdd: (() -> Void)? = nil
     private let thumbSizeY: CGFloat = 300
     private var columns: [GridItem] {
         [GridItem(.adaptive(minimum: 350), spacing: 12)]
@@ -25,8 +26,49 @@ struct ProblemsGalleryView: View {
                 }
                 .buttonStyle(.plain)
             }
+            if let onAdd {
+                Button(action: onAdd) {
+                    AddProblemCell(sizeY: thumbSizeY)
+                }
+                .buttonStyle(.plain)
+            }
         }
         .padding()
+    }
+}
+
+private struct AddProblemCell: View {
+    let sizeY: CGFloat
+
+    var body: some View {
+        let vSpacing: CGFloat = 6
+        let pillHeight: CGFloat = 22
+        let totalHeight = sizeY + vSpacing + pillHeight
+
+        VStack(alignment: .center, spacing: vSpacing) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [6]))
+                    .foregroundStyle(.secondary)
+                VStack(spacing: 8) {
+                    Image(systemName: "plus")
+                        .imageScale(.large)
+                        .font(.system(size: 28, weight: .semibold))
+                    Text("Add problem")
+                        .font(.headline)
+                }
+                .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: sizeY)
+
+            Color.clear.frame(height: pillHeight)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: totalHeight, alignment: .top)
+        .contentShape(RoundedRectangle(cornerRadius: 10))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Add problem")
     }
 }
 
