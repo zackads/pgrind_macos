@@ -29,21 +29,15 @@ struct ProblemDetailView: View {
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: "photo")
-            Group {
-                if let problemImage = NSImage(data: problem.questionImage) {
-                    ScrollView([.horizontal, .vertical]) {
-                        Image(nsImage: problemImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: 400)
-                } else {
-                    Text("Missing problem image")
-                }
+            if let problemImage = NSImage(data: problem.questionImage) {
+                Image(nsImage: problemImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                Text("Missing problem image")
+                Spacer()
             }
-
-            Spacer()
         }
         .padding()
         .navigationTitle("Problem")
