@@ -12,6 +12,7 @@ struct ProblemDetailView: View {
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var attemptNotes: String = ""
     @State private var showAddSolution: Bool = false
+    @State private var replaceImageKind: ReplaceImageSheet.Kind?
 
     private enum Difficulty: String, CaseIterable, Identifiable {
         case easy = "Easy"
@@ -45,6 +46,9 @@ struct ProblemDetailView: View {
         .sheet(isPresented: $showAddSolution) {
             AddSolutionSheet(problem: problem)
         }
+        .sheet(item: $replaceImageKind) { kind in
+            ReplaceImageSheet(problem: problem, kind: kind)
+        }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 if problem.solutionImage == nil {
@@ -55,6 +59,25 @@ struct ProblemDetailView: View {
                     }
                     .labelStyle(.titleAndIcon)
                 }
+
+                Menu {
+                    Button {
+                        replaceImageKind = .question
+                    } label: {
+                        Label("Replace question image", systemImage: "photo")
+                    }
+
+                    if problem.solutionImage != nil {
+                        Button {
+                            replaceImageKind = .solution
+                        } label: {
+                            Label("Replace solution image", systemImage: "checkmark.circle")
+                        }
+                    }
+                } label: {
+                    Label("Replace", systemImage: "arrow.triangle.2.circlepath")
+                }
+                .labelStyle(.titleAndIcon)
 
                 Button {
                     path.append(.recordAttempt(problem))
