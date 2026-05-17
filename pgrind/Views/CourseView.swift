@@ -17,6 +17,7 @@ struct CourseView: View {
     @State private var renamingProblemSet: ProblemSet?
     @State private var renameText: String = ""
     @State private var deletingProblemSet: ProblemSet?
+    @State private var addingProblemTo: ProblemSet?
 
     private var isRenaming: Binding<Bool> {
         Binding(
@@ -43,7 +44,7 @@ struct CourseView: View {
                     path.append(.viewProblem(problem))
                 },
                 onAdd: {
-                    addProblem(to: ps)
+                    addingProblemTo = ps
                 }
             )
         }
@@ -68,22 +69,6 @@ struct CourseView: View {
         renamingProblemSet = nil
     }
 
-    private func addProblem(to problemSet: ProblemSet) {
-        Task { @MainActor in
-            guard let imageData = await Screenshotter.takeScreenshot() else { return }
-            let problem = ImageProblem(
-                problemSet: problemSet,
-                questionImage: imageData
-            )
-            problemSet.problems.append(problem)
-            do {
-                try modelContext.save()
-            } catch {
-                print("Failed to save new problem: \(error)")
-            }
-        }
-    }
-
     private func confirmDelete() {
         guard let ps = deletingProblemSet else { return }
         modelContext.delete(ps)
@@ -106,6 +91,9 @@ struct CourseView: View {
         }
         .sheet(isPresented: $showingAddProblemSet) {
             AddProblemSetView(course: course)
+        }
+        .sheet(item: $addingProblemTo) { ps in
+            AddProblemSheet(problemSet: ps)
         }
         .alert("Rename Problem Set", isPresented: isRenaming) {
             TextField("Name", text: $renameText)
