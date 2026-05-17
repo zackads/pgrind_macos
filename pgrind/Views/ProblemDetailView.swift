@@ -11,6 +11,7 @@ struct ProblemDetailView: View {
     @State private var isSolutionHidden: Bool = true
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var attemptNotes: String = ""
+    @State private var showAddSolution: Bool = false
 
     private enum Difficulty: String, CaseIterable, Identifiable {
         case easy = "Easy"
@@ -41,8 +42,20 @@ struct ProblemDetailView: View {
         }
         .padding()
         .navigationTitle("Problem")
+        .sheet(isPresented: $showAddSolution) {
+            AddSolutionSheet(problem: problem)
+        }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
+                if problem.solutionImage == nil {
+                    Button {
+                        showAddSolution = true
+                    } label: {
+                        Label("Add solution", systemImage: "checkmark.circle")
+                    }
+                    .labelStyle(.titleAndIcon)
+                }
+
                 Button {
                     path.append(.recordAttempt(problem))
                 } label: {
