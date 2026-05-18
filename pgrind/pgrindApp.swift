@@ -5,7 +5,8 @@ import SwiftUI
 struct PgrindApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema(versionedSchema: SchemaV1.self)
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let storeURL = StorageLocation.currentStoreURL
+        let modelConfiguration = ModelConfiguration("default", schema: schema, url: storeURL)
 
         do {
             return try ModelContainer(
@@ -14,7 +15,7 @@ struct PgrindApp: App {
                 configurations: [modelConfiguration]
             )
         } catch {
-            print("ModelContainer init failed:", String(reflecting: error))
+            print("ModelContainer init failed at \(storeURL.path):", String(reflecting: error))
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
@@ -42,5 +43,9 @@ struct PgrindApp: App {
             }
         }
         .modelContainer(sharedModelContainer)
+
+        Settings {
+            SettingsView()
+        }
     }
 }
