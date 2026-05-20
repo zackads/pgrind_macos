@@ -15,7 +15,11 @@ struct Home: View {
     @Query(sort: \Course.createdDate, order: .forward) private var courses: [Course]
     @Query(sort: \ProblemSet.createdDate, order: .forward) private var problemSets: [ProblemSet]
     @Query(sort: \ImageProblem.createdDate, order: .forward) private var problems: [ImageProblem]
-    @Query(filter: #Predicate<ImageProblem> { $0.inInbox }, sort: \ImageProblem.createdDate, order: .forward) private var inboxProblems: [ImageProblem]
+    @Query(
+        filter: #Predicate<ImageProblem> { $0.inInbox },
+        sort: \ImageProblem.createdDate,
+        order: .forward
+    ) private var inboxProblems: [ImageProblem]
     @Query(sort: \StudyPlan.createdDate, order: .forward) private var studyPlans: [StudyPlan]
 
     @State private var path: [Route] = []
@@ -156,10 +160,10 @@ struct Home: View {
     context.insert(imageProblem)
     try? context.save()
 
-    let a3 = Attempt(problem: imageProblem, difficulty: .hard)
-    let a4 = Attempt(problem: imageProblem, difficulty: .hard)
-    context.insert(a3)
-    context.insert(a4)
+    let firstAttempt = Attempt(problem: imageProblem, difficulty: .hard)
+    let secondAttempt = Attempt(problem: imageProblem, difficulty: .hard)
+    context.insert(firstAttempt)
+    context.insert(secondAttempt)
     try? context.save()
 
     return Home()

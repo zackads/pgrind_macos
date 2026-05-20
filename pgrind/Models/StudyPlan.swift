@@ -34,7 +34,10 @@ class StudyPlan {
     }
 
     var courseSelectionMethod: CourseSelectionMethod {
-        get { (try? JSONDecoder().decode(CourseSelectionMethod.self, from: courseSelectionMethodData)) ?? .uniformRandom }
+        get {
+            (try? JSONDecoder().decode(CourseSelectionMethod.self, from: courseSelectionMethodData))
+                ?? .uniformRandom
+        }
         set { courseSelectionMethodData = (try? JSONEncoder().encode(newValue)) ?? Data() }
     }
 
@@ -128,22 +131,32 @@ enum ProblemSelectionMethod: Codable, Hashable, CustomStringConvertible {
         switch self {
         case .uniform: "Select uniformly at random from all problems."
         case .unattempted: "Select uniformly at random from problems that haven't been attempted."
-        case let .difficulties(difficulties): "Select uniformly at random from problems with selected difficulties."
-        case .unattemptedBiasedEarlier: "Select uniformly at random from all problems that haven't been attempted, with bias towards those earlier in the course."
+        case let .difficulties(difficulties):
+            "Select uniformly at random from problems with selected difficulties."
+        case .unattemptedBiasedEarlier:
+            "Select uniformly at random from all problems that haven't been attempted, " +
+                "with bias towards those earlier in the course."
         }
     }
 
     func select(count: Int, from course: Course) -> [ImageProblem] {
+        // swiftlint:disable:next todo
         // TODO: Need to alert the user when selection failed, rather than silently falling back to random selection?
         switch self {
         case .uniform:
             return Array(course.problems.shuffled().prefix(count))
         case .unattempted:
-            guard !course.unattempted.isEmpty else { return Array(course.problems.shuffled().prefix(count)) } // Fall back to uniform random selection
+            // Fall back to uniform random selection
+            guard !course.unattempted.isEmpty else {
+                return Array(course.problems.shuffled().prefix(count))
+            }
             return Array(course.unattempted.shuffled().prefix(count))
         case let .difficulties(difficulties):
             let candidates = course.problems.filter { difficulties.contains($0.currentDifficulty) }
-            guard !candidates.isEmpty else { return Array(course.problems.shuffled().prefix(count)) } // Fall back to uniform random selection
+            // Fall back to uniform random selection
+            guard !candidates.isEmpty else {
+                return Array(course.problems.shuffled().prefix(count))
+            }
             return Array(candidates.shuffled().prefix(count))
         case let .unattemptedBiasedEarlier(decay):
             guard !course.unattempted.isEmpty else { return Array(course.problems.shuffled().prefix(count)) }

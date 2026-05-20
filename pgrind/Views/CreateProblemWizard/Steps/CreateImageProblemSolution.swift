@@ -78,7 +78,8 @@ struct CreateImageProblemSolution: View {
 
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
-                    if !(solutionImagesData == []), let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
+                    if !(solutionImagesData == []),
+                       let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
                         imageProblem.solutionImage = mergedSolution
                     }
 

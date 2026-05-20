@@ -9,7 +9,7 @@ import Foundation
 
 enum StudySchedule: Codable, Hashable {
     case daily(hour: Int, minute: Int)
-    case weekly(on: Weekday, hour: Int, minute: Int)
+    case weekly(weekday: Weekday, hour: Int, minute: Int)
 
     enum Weekday: Int, Codable, CaseIterable, CustomStringConvertible {
         case monday = 1, tuesday, wednesday, thursday, friday, saturday, sunday

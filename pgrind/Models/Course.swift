@@ -46,11 +46,9 @@ final class Course {
     var attempted: [ImageProblem] {
         var attempted: [ImageProblem] = []
 
-        for ps in problemSets {
-            for problem in ps.problems {
-                if problem.attempted {
-                    attempted.append(problem)
-                }
+        for set in problemSets {
+            for problem in set.problems where problem.attempted {
+                attempted.append(problem)
             }
         }
 
@@ -60,11 +58,9 @@ final class Course {
     var unattempted: [ImageProblem] {
         var unattempted: [ImageProblem] = []
 
-        for ps in problemSets {
-            for problem in ps.problems {
-                if !problem.attempted {
-                    unattempted.append(problem)
-                }
+        for set in problemSets {
+            for problem in set.problems where !problem.attempted {
+                unattempted.append(problem)
             }
         }
 

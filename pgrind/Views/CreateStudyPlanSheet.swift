@@ -15,7 +15,8 @@ struct CreateStudyPlanSheet: View {
     @State private var name: String = ""
     @State private var scheduleKind: ScheduleKind = .daily
     @State private var weekday: StudySchedule.Weekday = .monday
-    @State private var timeOfDay: Date = Calendar.current.date(bySettingHour: 6, minute: 0, second: 0, of: Date()) ?? Date()
+    @State private var timeOfDay: Date = Calendar.current
+        .date(bySettingHour: 6, minute: 0, second: 0, of: Date()) ?? Date()
     @State private var selectedCourseIDs: Set<PersistentIdentifier> = []
     @State private var courseCountPerTrigger: Int = 1
     @State private var problemsPerCourse: Int = 3
@@ -174,7 +175,7 @@ struct CreateStudyPlanSheet: View {
                     let schedule: StudySchedule = {
                         switch scheduleKind {
                         case .daily: return .daily(hour: hour, minute: minute)
-                        case .weekly: return .weekly(on: weekday, hour: hour, minute: minute)
+                        case .weekly: return .weekly(weekday: weekday, hour: hour, minute: minute)
                         }
                     }()
                     let selectedCourses = courses.filter { selectedCourseIDs.contains($0.persistentModelID) }

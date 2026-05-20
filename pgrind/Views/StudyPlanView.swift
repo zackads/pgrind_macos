@@ -95,10 +95,14 @@ struct StudyPlanView: View {
                 } else {
                     ForEach(allCourses) { course in
                         Toggle(course.title, isOn: Binding(
-                            get: { studyPlan.courses.contains(where: { $0.persistentModelID == course.persistentModelID }) },
+                            get: {
+                                studyPlan.courses
+                                    .contains(where: { $0.persistentModelID == course.persistentModelID })
+                            },
                             set: { isOn in
                                 if isOn {
-                                    if !studyPlan.courses.contains(where: { $0.persistentModelID == course.persistentModelID }) {
+                                    if !studyPlan.courses
+                                        .contains(where: { $0.persistentModelID == course.persistentModelID }) {
                                         studyPlan.courses.append(course)
                                     }
                                 } else {
@@ -222,7 +226,7 @@ struct StudyPlanView: View {
         case .daily:
             studyPlan.schedule = .daily(hour: hour, minute: minute)
         case .weekly:
-            studyPlan.schedule = .weekly(on: weekday, hour: hour, minute: minute)
+            studyPlan.schedule = .weekly(weekday: weekday, hour: hour, minute: minute)
         }
     }
 
@@ -240,7 +244,8 @@ struct StudyPlanView: View {
         case .uniform: studyPlan.problemSelectionMethod = .uniform
         case .unattempted: studyPlan.problemSelectionMethod = .unattempted
         case .difficulties: studyPlan.problemSelectionMethod = .difficulties(selectedDifficulties)
-        case .unattemptedBiasedEarlier: studyPlan.problemSelectionMethod = .unattemptedBiasedEarlier(decay: unattemptedDecay)
+        case .unattemptedBiasedEarlier:
+            studyPlan.problemSelectionMethod = .unattemptedBiasedEarlier(decay: unattemptedDecay)
         }
     }
 

@@ -111,11 +111,11 @@ struct CourseProgressTests {
         container.mainContext.insert(setA)
         container.mainContext.insert(setB)
 
-        let p1 = ImageProblem(problemSet: setA, questionImage: Data())
-        let p2 = ImageProblem(problemSet: setB, questionImage: Data())
-        container.mainContext.insert(p1)
-        container.mainContext.insert(p2)
-        container.mainContext.insert(Attempt(problem: p1, difficulty: .easy))
+        let firstProblem = ImageProblem(problemSet: setA, questionImage: Data())
+        let secondProblem = ImageProblem(problemSet: setB, questionImage: Data())
+        container.mainContext.insert(firstProblem)
+        container.mainContext.insert(secondProblem)
+        container.mainContext.insert(Attempt(problem: firstProblem, difficulty: .easy))
 
         let progress = course.progress
         #expect(progress.proportionAttempted == 0.5)

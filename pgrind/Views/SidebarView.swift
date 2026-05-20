@@ -45,7 +45,10 @@ struct SidebarView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: { course in
-            Text("This will permanently delete the course \"\(course.title)\", all of its problems and any review data. This action cannot be undone.")
+            Text(
+                "This will permanently delete the course \"\(course.title)\", " +
+                    "all of its problems and any review data. This action cannot be undone."
+            )
         }
         .confirmationDialog(
             "Delete this study plan?",
@@ -187,7 +190,12 @@ struct SidebarView: View {
         }
     }
 
-    private func sectionHeader(title: String, help: String, isHovering: Binding<Bool>, onAdd: @escaping () -> Void) -> some View {
+    private func sectionHeader(
+        title: String,
+        help: String,
+        isHovering: Binding<Bool>,
+        onAdd: @escaping () -> Void
+    ) -> some View {
         HStack {
             Text(title)
             Spacer()

@@ -21,9 +21,9 @@ struct SelectProblemSet: View {
         Form {
             ScrollView {
                 ForEach(course.problemSets) { choice in
-                    Button(action: {
+                    Button {
                         selection = .existing(choice)
-                    }) {
+                    } label: {
                         ChoiceCard(
                             title: choice.name,
                             isSelected: {
@@ -38,9 +38,9 @@ struct SelectProblemSet: View {
                     .buttonStyle(.plain)
                 }
 
-                Button(action: {
+                Button {
                     selection = .new
-                }) {
+                } label: {
                     HStack(spacing: 12) {
                         Image(systemName: "plus.circle")
                             .font(.title2)

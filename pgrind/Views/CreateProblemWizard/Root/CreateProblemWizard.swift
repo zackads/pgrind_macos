@@ -30,7 +30,12 @@ struct CreateProblemWizard: View {
         NavigationStack(path: $path) {
             Group {
                 if let course {
-                    SelectProblemSet(path: $path, course: course, selectedProblemSet: $selectedProblemSet, onCancel: { dismiss() })
+                    SelectProblemSet(
+                        path: $path,
+                        course: course,
+                        selectedProblemSet: $selectedProblemSet,
+                        onCancel: { dismiss() }
+                    )
                 } else {
                     SelectCourse(path: $path, course: $selectedCourse, onCancel: { dismiss() })
                 }
@@ -42,13 +47,28 @@ struct CreateProblemWizard: View {
                 case .createCourse:
                     CreateCourse(path: $path, selectedCourse: $selectedCourse, onCancel: { dismiss() })
                 case let .selectProblemSet(course):
-                    SelectProblemSet(path: $path, course: course, selectedProblemSet: $selectedProblemSet, onCancel: { dismiss() })
+                    SelectProblemSet(
+                        path: $path,
+                        course: course,
+                        selectedProblemSet: $selectedProblemSet,
+                        onCancel: { dismiss() }
+                    )
                 case let .createProblemSet(course):
-                    CreateProblemSet(path: $path, course: course, selectedProblemSet: $selectedProblemSet, onCancel: { dismiss() })
+                    CreateProblemSet(
+                        path: $path,
+                        course: course,
+                        selectedProblemSet: $selectedProblemSet,
+                        onCancel: { dismiss() }
+                    )
                 case let .createImageProblemQuestion(problemSet):
                     CreateImageProblemQuestion(path: $path, problemSet: problemSet, onCancel: { dismiss() })
                 case let .createImageProblemSolution(imageProblem):
-                    CreateImageProblemSolution(path: $path, imageProblem: imageProblem, onSave: { dismiss() }, onCancel: { dismiss() })
+                    CreateImageProblemSolution(
+                        path: $path,
+                        imageProblem: imageProblem,
+                        onSave: { dismiss() },
+                        onCancel: { dismiss() }
+                    )
                 }
             }
         }

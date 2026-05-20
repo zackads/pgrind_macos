@@ -34,58 +34,58 @@ struct CourseView: View {
         )
     }
 
-    private func isExpanded(_ ps: ProblemSet) -> Binding<Bool> {
+    private func isExpanded(_ problemSet: ProblemSet) -> Binding<Bool> {
         Binding(
-            get: { !collapsedProblemSets.contains(ps.persistentModelID) },
+            get: { !collapsedProblemSets.contains(problemSet.persistentModelID) },
             set: { expanded in
                 if expanded {
-                    collapsedProblemSets.remove(ps.persistentModelID)
+                    collapsedProblemSets.remove(problemSet.persistentModelID)
                 } else {
-                    collapsedProblemSets.insert(ps.persistentModelID)
+                    collapsedProblemSets.insert(problemSet.persistentModelID)
                 }
             }
         )
     }
 
-    private func row(for ps: ProblemSet) -> some View {
-        DisclosureGroup(isExpanded: isExpanded(ps)) {
+    private func row(for problemSet: ProblemSet) -> some View {
+        DisclosureGroup(isExpanded: isExpanded(problemSet)) {
             ProblemsGalleryView(
-                problems: ps.sortedProblems,
+                problems: problemSet.sortedProblems,
                 onSelect: { problem in
                     path.append(.viewProblem(problem))
                 },
                 onAdd: {
-                    addingProblemTo = ps
+                    addingProblemTo = problemSet
                 }
             )
         } label: {
-            Text(ps.name)
+            Text(problemSet.name)
                 .font(.title3)
         }
-        .tag(ps)
+        .tag(problemSet)
         .contextMenu {
             Button("Rename") {
-                renameText = ps.name
-                renamingProblemSet = ps
+                renameText = problemSet.name
+                renamingProblemSet = problemSet
             }
             Button("Delete", role: .destructive) {
-                deletingProblemSet = ps
+                deletingProblemSet = problemSet
             }
         }
     }
 
     private func commitRename() {
-        guard let ps = renamingProblemSet else { return }
+        guard let problemSet = renamingProblemSet else { return }
         let trimmed = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmed.isEmpty {
-            ps.name = trimmed
+            problemSet.name = trimmed
         }
         renamingProblemSet = nil
     }
 
     private func confirmDelete() {
-        guard let ps = deletingProblemSet else { return }
-        modelContext.delete(ps)
+        guard let problemSet = deletingProblemSet else { return }
+        modelContext.delete(problemSet)
         deletingProblemSet = nil
     }
 
@@ -96,8 +96,8 @@ struct CourseView: View {
                     path.append(.viewProblem(problem))
                 }
             }
-            ForEach(course.problemSets) { ps in
-                row(for: ps)
+            ForEach(course.problemSets) { problemSet in
+                row(for: problemSet)
             }
         }
         .navigationTitle(course.title)
@@ -131,8 +131,8 @@ struct CourseView: View {
         .sheet(isPresented: $showingAddProblemSet) {
             AddProblemSetView(course: course)
         }
-        .sheet(item: $addingProblemTo) { ps in
-            AddProblemSheet(problemSet: ps)
+        .sheet(item: $addingProblemTo) { problemSet in
+            AddProblemSheet(problemSet: problemSet)
         }
         .alert("Rename Problem Set", isPresented: isRenaming) {
             TextField("Name", text: $renameText)

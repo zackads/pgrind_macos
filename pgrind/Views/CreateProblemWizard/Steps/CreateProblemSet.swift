@@ -14,7 +14,10 @@ struct CreateProblemSet: View {
 
     var body: some View {
         Form {
-            TextField(text: $problemSetName, prompt: Text("E.g. 'Week 4 problem sheet', 'Chapter 12' or '2022 Summer exam paper")) {
+            TextField(
+                text: $problemSetName,
+                prompt: Text("E.g. 'Week 4 problem sheet', 'Chapter 12' or '2022 Summer exam paper")
+            ) {
                 Text("Name")
             }
         }

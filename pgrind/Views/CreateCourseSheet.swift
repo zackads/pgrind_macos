@@ -19,14 +19,30 @@ struct CreateCourseSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             Form {
-                TextField(text: $title, prompt: Text("E.g. 'MIT 18.01 | Single Variable Calculus | Fall 2020'")) {
+                TextField(
+                    text: $title,
+                    prompt: Text("E.g. 'MIT 18.01 | Single Variable Calculus | Fall 2020'")
+                ) {
                     Text("Name")
                 }
-                TextField(text: $summary, prompt: Text("E.g. 'Master the calculus of derivatives, integrals, coordinate systems, and infinite series.'"), axis: .vertical) {
+                TextField(
+                    text: $summary,
+                    prompt: Text(
+                        "E.g. 'Master the calculus of derivatives, integrals, " +
+                            "coordinate systems, and infinite series.'"
+                    ),
+                    axis: .vertical
+                ) {
                     Text("Description (optional)")
                 }
                 .lineLimit(3 ... 5)
-                TextField(text: $hyperlink, prompt: Text("E.g. 'https://ocw.mit.edu/courses/18-01-calculus-i-single-variable-calculus-fall-2020/'")) {
+                TextField(
+                    text: $hyperlink,
+                    prompt: Text(
+                        "E.g. 'https://ocw.mit.edu/courses/" +
+                            "18-01-calculus-i-single-variable-calculus-fall-2020/'"
+                    )
+                ) {
                     Text("Website URL (optional)")
                 }
             }

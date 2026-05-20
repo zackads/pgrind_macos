@@ -59,7 +59,7 @@ struct AddProblemSetView: View {
             }
             .navigationDestination(for: Route.self) { route in
                 switch route {
-                case let .addProblemQuestion(ps):
+                case let .addProblemQuestion(set):
                     Form {
                         Section("Problem image") {
                             Text("Take a screenshot of the problem.")
@@ -117,17 +117,17 @@ struct AddProblemSetView: View {
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Continue") {
                                 if let mergedQuestion = Screenshotter.mergeImagesVertically(from: questionImagesData) {
-                                    let ip = ImageProblem(
-                                        problemSet: ps,
+                                    let problem = ImageProblem(
+                                        problemSet: set,
                                         questionImage: mergedQuestion
                                     )
 
-                                    ps.problems.append(ip)
+                                    set.problems.append(problem)
 
                                     do {
                                         try modelContext.save()
                                         questionImagesData = []
-                                        path.append(.addProblemSolution(ps, ip))
+                                        path.append(.addProblemSolution(set, problem))
                                     } catch {
                                         print("Failed to save model context: \(error)")
                                     }
@@ -136,7 +136,7 @@ struct AddProblemSetView: View {
                             .disabled(questionImagesData.isEmpty)
                         }
                     }
-                case let .addProblemSolution(ps, ip):
+                case let .addProblemSolution(set, problem):
                     Form {
                         Section("Solution image") {
                             Text("Take a screenshot of the solution.")
@@ -193,14 +193,15 @@ struct AddProblemSetView: View {
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
                             Button("Save and add more problems") {
-                                if !(solutionImagesData == []), let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
-                                    ip.solutionImage = mergedSolution
+                                if !(solutionImagesData == []),
+                                   let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
+                                    problem.solutionImage = mergedSolution
                                 }
 
                                 do {
                                     try modelContext.save()
                                     solutionImagesData = []
-                                    path.append(.addProblemQuestion(ps))
+                                    path.append(.addProblemQuestion(set))
                                 } catch {
                                     print("Failed to save model context: \(error)")
                                 }
@@ -209,8 +210,9 @@ struct AddProblemSetView: View {
 
                         ToolbarItem(placement: .automatic) {
                             Button("Save and finish") {
-                                if !(solutionImagesData == []), let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
-                                    ip.solutionImage = mergedSolution
+                                if !(solutionImagesData == []),
+                                   let mergedSolution = Screenshotter.mergeImagesVertically(from: solutionImagesData) {
+                                    problem.solutionImage = mergedSolution
                                 }
 
                                 do {

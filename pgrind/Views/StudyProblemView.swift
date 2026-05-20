@@ -26,7 +26,9 @@ struct StudyProblemView: View {
                 }
                 HStack {
                     Spacer()
-                    Button(action: { path.append(.recordAttempt(problem)) }) {
+                    Button {
+                        path.append(.recordAttempt(problem))
+                    } label: {
                         Label("Show solution", systemImage: "eye")
                     }
                     .buttonStyle(.borderedProminent)
