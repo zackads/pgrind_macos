@@ -26,6 +26,7 @@ struct SidebarView: View {
     var body: some View {
         List(selection: $selectedSidebarItem) {
             inboxSection
+            historySection
             coursesSection
             studyPlansSection
         }
@@ -99,6 +100,24 @@ struct SidebarView: View {
                     .padding(.horizontal, 4)
             )
             .tag(Home.SidebarItem.inbox)
+        }
+    }
+
+    private var historySection: some View {
+        Section {
+            HStack(spacing: 8) {
+                Image(systemName: "clock.arrow.circlepath")
+                Text("History")
+                    .fontWeight(.medium)
+                Spacer()
+            }
+            .padding(.vertical, 4)
+            .listRowBackground(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(selectedSidebarItem == .history ? Color.accentColor : Color.clear)
+                    .padding(.horizontal, 4)
+            )
+            .tag(Home.SidebarItem.history)
         }
     }
 

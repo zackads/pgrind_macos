@@ -27,6 +27,7 @@ struct Home: View {
 
     enum SidebarItem: Hashable {
         case inbox
+        case history
         case course(Course)
         case studyPlan(StudyPlan)
     }
@@ -56,6 +57,16 @@ struct Home: View {
                     switch selectedSidebarItem {
                     case .inbox:
                         InboxView(path: $path, problems: inboxProblems)
+                    case .history:
+                        let recentlyAttempted = problems
+                            .filter { $0.lastAttempted != nil }
+                            .sorted { ($0.lastAttempted ?? .distantPast) > ($1.lastAttempted ?? .distantPast) }
+                        ScrollView {
+                            ProblemsGalleryView(problems: recentlyAttempted) { problem in
+                                path.append(.viewProblem(problem))
+                            }
+                        }
+                        .navigationTitle("History")
                     case let .course(course):
                         CourseView(path: $path, course: course)
                     case let .studyPlan(studyPlan):
