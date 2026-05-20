@@ -2,11 +2,6 @@ import AppKit
 import SwiftData
 import SwiftUI
 
-private enum ViewMode {
-    case thumbnail
-    case heatmap
-}
-
 struct Home: View {
     enum Route: Hashable {
         case viewCourse(Course)
@@ -41,7 +36,6 @@ struct Home: View {
     @State private var selectedProblem: ImageProblem?
 
     @State private var showInspector = false
-    @State private var viewMode: ViewMode = .heatmap
 
     var body: some View {
         NavigationSplitView {
@@ -84,15 +78,6 @@ struct Home: View {
                     case let .recordAttempt(problem):
                         RecordAttemptView(path: $path, problem: problem)
                     }
-                }
-            }
-        }
-        .inspector(isPresented: $showInspector) {
-            Group {
-                if let selectedProblem {
-                    ProblemInspectorView(problem: selectedProblem)
-                } else {
-                    ContentUnavailableView("Select a problem", systemImage: "document.on.document")
                 }
             }
         }
