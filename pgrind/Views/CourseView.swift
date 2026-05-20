@@ -90,8 +90,15 @@ struct CourseView: View {
     }
 
     var body: some View {
-        List(course.problemSets) { ps in
-            row(for: ps)
+        List {
+            Section {
+                CourseHeatmap(problems: course.problems) { problem in
+                    path.append(.viewProblem(problem))
+                }
+            }
+            ForEach(course.problemSets) { ps in
+                row(for: ps)
+            }
         }
         .navigationTitle(course.title)
         .toolbar {
@@ -140,5 +147,53 @@ struct CourseView: View {
             Button("Delete", role: .destructive, action: confirmDelete)
             Button("Cancel", role: .cancel) { deletingProblemSet = nil }
         }
+    }
+}
+
+private struct CourseHeatmap: View {
+    let problems: [ImageProblem]
+    let onSelect: (ImageProblem) -> Void
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
+    private let columns = [GridItem(.adaptive(minimum: 10, maximum: 10), spacing: 2, alignment: .leading)]
+
+    var body: some View {
+        if problems.isEmpty {
+            EmptyView()
+        } else {
+            LazyVGrid(columns: columns, alignment: .leading, spacing: 2) {
+                ForEach(problems) { problem in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(color(for: problem.currentDifficulty))
+                        .frame(width: 10, height: 10)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onSelect(problem)
+                        }
+                        .help(tooltip(for: problem))
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+
+    private func color(for difficulty: Difficulty) -> Color {
+        switch difficulty {
+        case .notAttempted: return Color.gray.opacity(0.4)
+        case .easy: return .green
+        case .medium: return .orange
+        case .hard: return .red
+        }
+    }
+
+    private func tooltip(for problem: ImageProblem) -> String {
+        guard let last = problem.lastAttempted else { return "Not attempted" }
+        return Self.dateFormatter.string(from: last)
     }
 }
