@@ -52,7 +52,7 @@ struct CourseView: View {
             ProblemsGalleryView(
                 problems: problemSet.sortedProblems,
                 onSelect: { problem in
-                    path.append(.viewProblem(problem))
+                    path.append(.recordAttempt(problem))
                 },
                 onAdd: {
                     addingProblemTo = problemSet
@@ -93,7 +93,7 @@ struct CourseView: View {
         List {
             Section {
                 CourseHeatmap(problems: course.problems) { problem in
-                    path.append(.viewProblem(problem))
+                    path.append(.recordAttempt(problem))
                 }
             }
             ForEach(course.problemSets) { problemSet in

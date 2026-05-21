@@ -5,7 +5,6 @@ import SwiftUI
 struct Home: View {
     enum Route: Hashable {
         case viewCourse(Course)
-        case viewProblem(ImageProblem)
         case recordAttempt(ImageProblem)
     }
 
@@ -39,8 +38,6 @@ struct Home: View {
 
     @State private var selectedProblem: ImageProblem?
 
-    @State private var showInspector = false
-
     var body: some View {
         NavigationSplitView {
             SidebarView(
@@ -61,7 +58,7 @@ struct Home: View {
                             .sorted { ($0.lastAttempted ?? .distantPast) > ($1.lastAttempted ?? .distantPast) }
                         ScrollView {
                             ProblemsGalleryView(problems: recentlyAttempted) { problem in
-                                path.append(.viewProblem(problem))
+                                path.append(.recordAttempt(problem))
                             }
                         }
                         .navigationTitle("History")
@@ -77,8 +74,6 @@ struct Home: View {
                     switch route {
                     case let .viewCourse(course):
                         CourseView(path: $path, course: course)
-                    case let .viewProblem(problem):
-                        ProblemDetailView(path: $path, problem: problem)
                     case let .recordAttempt(problem):
                         RecordAttemptView(path: $path, problem: problem)
                     }
@@ -89,83 +84,4 @@ struct Home: View {
             selectedProblem = nil
         }
     }
-
-    private func inspector(problemSet: ProblemSet?) -> some View {
-        Group {
-            if let problemSet {
-                List(problemSet.problems, selection: $selectedProblem) { problem in
-                    HStack {
-                        Image(systemName: "photo")
-                        if let problemImage = NSImage(data: problem.questionImage) {
-                            ExpandableImageView(image: problemImage)
-                        } else {
-                            Text("Missing problem image")
-                        }
-                    }
-                    .tag(problem)
-                }
-                .navigationTitle(problemSet.name)
-            } else {
-                ContentUnavailableView("Select a problem set", systemImage: "document.on.document")
-            }
-        }
-    }
-}
-
-#Preview {
-    let schema = Schema([
-        Course.self,
-        ProblemSet.self,
-        ImageProblem.self,
-        Attempt.self
-    ])
-
-    let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container: ModelContainer
-    do {
-        container = try ModelContainer(for: schema, configurations: [config])
-    } catch {
-        fatalError("Failed to create preview container: \(error)")
-    }
-
-    let context = container.mainContext
-
-    // Sample Courses
-    let analysis = Course(
-        title: "Real Analysis",
-        summary: "Introductory real analysis course",
-        hyperlink: "https://example.com/analysis"
-    )
-    let algorithms = Course(
-        title: "Algorithms",
-        summary: "Design and analysis of algorithms",
-        hyperlink: "https://example.com/algorithms"
-    )
-    context.insert(analysis)
-    context.insert(algorithms)
-    try? context.save()
-
-    // Sample ProblemSets
-    let ps1 = ProblemSet(course: analysis, name: "Week 1 problem sheet")
-    let ps2 = ProblemSet(course: algorithms, name: "Week 2 problem sheet")
-    context.insert(ps1)
-    context.insert(ps2)
-    try? context.save()
-
-    let imageProblem = ImageProblem(
-        problemSet: ps1,
-        questionImage: Data(),
-        solutionImage: Data()
-    )
-    context.insert(imageProblem)
-    try? context.save()
-
-    let firstAttempt = Attempt(problem: imageProblem, difficulty: .hard)
-    let secondAttempt = Attempt(problem: imageProblem, difficulty: .hard)
-    context.insert(firstAttempt)
-    context.insert(secondAttempt)
-    try? context.save()
-
-    return Home()
-        .modelContainer(container)
 }
