@@ -15,8 +15,8 @@ struct ExpandableImageView: View {
                 .interpolation(.high)
                 .scaledToFit()
                 .frame(
-                    maxWidth: maxSize?.width ?? .infinity,
-                    maxHeight: maxSize?.height ?? .infinity
+                    maxWidth: maxSize?.width ?? image.size.width,
+                    maxHeight: maxSize?.height ?? image.size.height
                 )
                 .onTapGesture { isExpanded = true }
                 .onHover { hovering in
