@@ -74,6 +74,9 @@ struct RecordAttemptView: View {
                                     )
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
+
+                            previousNotesTimeline
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         .padding()
                     }
@@ -84,22 +87,71 @@ struct RecordAttemptView: View {
         }
         .padding()
         .navigationTitle("Record attempt")
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
-                    problem.attempts.append(
-                        Attempt(
-                            problem: problem,
-                            difficulty: selectedDifficulty,
-                            notes: notes
-                        )
-                    )
-                    problem.inInbox = false
+        .toolbar { toolbarContent }
+    }
 
-                    dismiss()
+    private var pastAttemptsWithNotes: [Attempt] {
+        problem.attempts
+            .filter { ($0.notes?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false) }
+            .sorted { $0.createdDate > $1.createdDate }
+    }
+
+    @ViewBuilder
+    private var previousNotesTimeline: some View {
+        let attempts = pastAttemptsWithNotes
+        if !attempts.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Previous notes").font(.headline)
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(attempts) { attempt in
+                        HStack(alignment: .top, spacing: 12) {
+                            VStack(spacing: 4) {
+                                Circle()
+                                    .fill(Color.accentColor)
+                                    .frame(width: 8, height: 8)
+                                Rectangle()
+                                    .fill(Color.secondary.opacity(0.3))
+                                    .frame(width: 1)
+                                    .frame(maxHeight: .infinity)
+                            }
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 8) {
+                                    Text(attempt.createdDate, format: .dateTime.year().month().day().hour().minute())
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                    Text(String(describing: attempt.difficulty))
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Text(attempt.notes ?? "")
+                                    .font(.body)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.bottom, 4)
+                        }
+                    }
                 }
-                .keyboardShortcut(.defaultAction)
             }
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .confirmationAction) {
+            Button("Save") {
+                problem.attempts.append(
+                    Attempt(
+                        problem: problem,
+                        difficulty: selectedDifficulty,
+                        notes: notes
+                    )
+                )
+                problem.inInbox = false
+
+                dismiss()
+            }
+            .keyboardShortcut(.defaultAction)
         }
     }
 }
