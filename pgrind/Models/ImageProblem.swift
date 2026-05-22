@@ -27,6 +27,8 @@ final class ImageProblem {
 
     var inInbox: Bool = false
 
+    var tags: [String] = []
+
     @Relationship
     var problemSet: ProblemSet
 

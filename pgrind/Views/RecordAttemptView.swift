@@ -59,6 +59,9 @@ struct RecordAttemptView: View {
                                 Spacer()
                             }
 
+                            TagsSection(problem: problem)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Notes").font(.headline)
                                 TextEditor(text: $notes)
