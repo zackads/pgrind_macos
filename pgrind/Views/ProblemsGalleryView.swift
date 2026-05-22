@@ -7,10 +7,24 @@
 
 import SwiftUI
 
-struct ProblemsGalleryView: View {
+struct ProblemsGalleryView<MenuContent: View>: View {
     let problems: [ImageProblem]
     var onSelect: (ImageProblem) -> Void
     var onAdd: (() -> Void)?
+    var contextMenu: (ImageProblem) -> MenuContent
+
+    init(
+        problems: [ImageProblem],
+        onSelect: @escaping (ImageProblem) -> Void,
+        onAdd: (() -> Void)? = nil,
+        @ViewBuilder contextMenu: @escaping (ImageProblem) -> MenuContent
+    ) {
+        self.problems = problems
+        self.onSelect = onSelect
+        self.onAdd = onAdd
+        self.contextMenu = contextMenu
+    }
+
     private let thumbSizeY: CGFloat = 300
     private var columns: [GridItem] {
         [GridItem(.adaptive(minimum: 350), spacing: 12)]
@@ -25,6 +39,7 @@ struct ProblemsGalleryView: View {
                     GalleryCell(problem: problem, sizeY: thumbSizeY)
                 }
                 .buttonStyle(.plain)
+                .contextMenu { contextMenu(problem) }
             }
             if let onAdd {
                 Button(action: onAdd) {
@@ -34,6 +49,21 @@ struct ProblemsGalleryView: View {
             }
         }
         .padding()
+    }
+}
+
+extension ProblemsGalleryView where MenuContent == EmptyView {
+    init(
+        problems: [ImageProblem],
+        onSelect: @escaping (ImageProblem) -> Void,
+        onAdd: (() -> Void)? = nil
+    ) {
+        self.init(
+            problems: problems,
+            onSelect: onSelect,
+            onAdd: onAdd,
+            contextMenu: { _ in EmptyView() }
+        )
     }
 }
 
@@ -193,7 +223,9 @@ private struct GalleryCell: View {
     )
 
     ProblemsGalleryView(
-        problems: [imageProblem]
-    ) { _ in }
-        .padding()
+        problems: [imageProblem],
+        onSelect: { _ in },
+        contextMenu: { _ in EmptyView() }
+    )
+    .padding()
 }
