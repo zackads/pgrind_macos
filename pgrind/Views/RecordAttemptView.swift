@@ -14,6 +14,8 @@ struct RecordAttemptView: View {
     @State private var selectedDifficulty: Difficulty = .medium
     @State private var selectedTab: Tab = .question
     @State private var notes: String = ""
+    @State private var questionReplacementData: [Data] = []
+    @State private var solutionReplacementData: [Data] = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -22,12 +24,13 @@ struct RecordAttemptView: View {
 
                 TabView(selection: $selectedTab) {
                     ScrollView {
-                        VStack {
-                            if let questionImage = NSImage(data: problem.questionImage) {
-                                ExpandableImageView(image: questionImage, maxSize: nil)
-                            } else {
-                                ContentUnavailableView("Missing question image", systemImage: "photo")
-                            }
+                        VStack(spacing: 16) {
+                            replaceableImage(
+                                data: problem.questionImage,
+                                missingLabel: "Missing question image",
+                                replacementData: $questionReplacementData,
+                                onCommit: { merged in problem.questionImage = merged }
+                            )
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -37,13 +40,12 @@ struct RecordAttemptView: View {
 
                     ScrollView {
                         VStack(spacing: 16) {
-                            if let data = problem.solutionImage, let solutionImage = NSImage(data: data) {
-                                ExpandableImageView(image: solutionImage, maxSize: nil)
-                                    .frame(maxWidth: .infinity)
-                            } else {
-                                ContentUnavailableView("Missing solution image", systemImage: "photo")
-                                    .frame(maxWidth: .infinity)
-                            }
+                            replaceableImage(
+                                data: problem.solutionImage,
+                                missingLabel: "Missing solution image",
+                                replacementData: $solutionReplacementData,
+                                onCommit: { merged in problem.solutionImage = merged }
+                            )
 
                             HStack {
                                 Spacer()
@@ -88,6 +90,88 @@ struct RecordAttemptView: View {
         .padding()
         .navigationTitle("Record attempt")
         .toolbar { toolbarContent }
+    }
+
+    @ViewBuilder
+    private func replaceableImage(
+        data: Data?,
+        missingLabel: String,
+        replacementData: Binding<[Data]>,
+        onCommit: @escaping (Data) -> Void
+    ) -> some View {
+        if !replacementData.wrappedValue.isEmpty {
+            replacementInProgress(replacementData: replacementData, onCommit: onCommit)
+        } else {
+            currentImageWithReplaceButton(
+                data: data,
+                missingLabel: missingLabel,
+                replacementData: replacementData
+            )
+        }
+    }
+
+    private func appendScreenshot(to replacementData: Binding<[Data]>) {
+        Task { @MainActor in
+            if let newData = await Screenshotter.takeScreenshot() {
+                replacementData.wrappedValue.append(newData)
+            }
+        }
+    }
+
+    private func replacementInProgress(
+        replacementData: Binding<[Data]>,
+        onCommit: @escaping (Data) -> Void
+    ) -> some View {
+        VStack(spacing: 12) {
+            PiledImagesView(imagesData: replacementData.wrappedValue)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            HStack {
+                Button {
+                    appendScreenshot(to: replacementData)
+                } label: {
+                    Label("Add another screenshot", systemImage: "plus")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+
+                Button {
+                    if let merged = Screenshotter.mergeImagesVertically(from: replacementData.wrappedValue) {
+                        onCommit(merged)
+                        replacementData.wrappedValue.removeAll()
+                    }
+                } label: {
+                    Label("Save replacement", systemImage: "checkmark")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+
+                Button(role: .destructive) {
+                    replacementData.wrappedValue.removeAll()
+                } label: {
+                    Label("Cancel", systemImage: "xmark")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func currentImageWithReplaceButton(
+        data: Data?,
+        missingLabel: String,
+        replacementData _: Binding<[Data]>
+    ) -> some View {
+        VStack(spacing: 12) {
+            if let data, let image = NSImage(data: data) {
+                ExpandableImageView(image: image, maxSize: nil)
+                    .frame(maxWidth: .infinity)
+            } else {
+                ContentUnavailableView(missingLabel, systemImage: "photo")
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private var pastAttemptsWithNotes: [Attempt] {
@@ -136,8 +220,34 @@ struct RecordAttemptView: View {
         }
     }
 
+    private var activeReplacementBinding: Binding<[Data]> {
+        switch selectedTab {
+        case .question: $questionReplacementData
+        case .solution: $solutionReplacementData
+        }
+    }
+
+    private var activeImageMissing: Bool {
+        switch selectedTab {
+        case .question: problem.questionImage.isEmpty
+        case .solution: problem.solutionImage == nil
+        }
+    }
+
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                appendScreenshot(to: activeReplacementBinding)
+            } label: {
+                Label(
+                    activeImageMissing ? "Add screenshot" : "Replace image",
+                    systemImage: "camera.viewfinder"
+                )
+            }
+            .disabled(!activeReplacementBinding.wrappedValue.isEmpty)
+        }
+
         ToolbarItem(placement: .confirmationAction) {
             Button("Save") {
                 problem.attempts.append(

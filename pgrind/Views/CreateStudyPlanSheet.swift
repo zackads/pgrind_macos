@@ -19,7 +19,7 @@ struct CreateStudyPlanSheet: View {
         .date(bySettingHour: 6, minute: 0, second: 0, of: Date()) ?? Date()
     @State private var selectedCourseIDs: Set<PersistentIdentifier> = []
     @State private var courseCountPerTrigger: Int = 1
-    @State private var problemsPerCourse: Int = 3
+    @State private var problemsPerTrigger: Int = 3
     @State private var courseSelectionMethod: CourseSelectionMethod = .uniformRandom
     @State private var problemSelectionKind: ProblemSelectionKind = .uniform
     @State private var selectedDifficulties: Set<Difficulty> = Set(Difficulty.allCases)
@@ -117,15 +117,15 @@ struct CreateStudyPlanSheet: View {
                     }
                 }
 
-                Section("Problems per course") {
+                Section("Problems per trigger") {
                     HStack {
-                        Text("Problems per course: \(problemsPerCourse)")
+                        Text("Problems per trigger: \(problemsPerTrigger)")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Slider(
                             value: Binding(
-                                get: { Double(problemsPerCourse) },
-                                set: { problemsPerCourse = max(1, Int($0)) }
+                                get: { Double(problemsPerTrigger) },
+                                set: { problemsPerTrigger = max(1, Int($0)) }
                             ),
                             in: 0 ... 5,
                             step: 1
@@ -191,9 +191,9 @@ struct CreateStudyPlanSheet: View {
                         name: name,
                         courses: selectedCourses,
                         schedule: schedule,
-                        courseCountPerTrigger: selectedCourseIDs.count,
-                        courseSelectionMethod: .all,
-                        problemsPerCourse: problemsPerCourse,
+                        courseCountPerTrigger: problemsPerTrigger,
+                        courseSelectionMethod: .uniformRandom,
+                        problemsPerCourse: 1,
                         problemSelectionMethod: problemSelectionMethod
                     )
                     modelContext.insert(plan)

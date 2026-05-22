@@ -28,12 +28,12 @@ class StudyPlan {
     private var courseSelectionMethodData: Data
     private var problemSelectionMethodData: Data
 
-    var schedule: StudySchedule {
+    @MainActor var schedule: StudySchedule {
         get { (try? JSONDecoder().decode(StudySchedule.self, from: scheduleData)) ?? .daily(hour: 6, minute: 0) }
         set { scheduleData = (try? JSONEncoder().encode(newValue)) ?? Data() }
     }
 
-    var courseSelectionMethod: CourseSelectionMethod {
+    @MainActor var courseSelectionMethod: CourseSelectionMethod {
         get {
             (try? JSONDecoder().decode(CourseSelectionMethod.self, from: courseSelectionMethodData))
                 ?? .uniformRandom
@@ -41,7 +41,7 @@ class StudyPlan {
         set { courseSelectionMethodData = (try? JSONEncoder().encode(newValue)) ?? Data() }
     }
 
-    var problemSelectionMethod: ProblemSelectionMethod {
+    @MainActor var problemSelectionMethod: ProblemSelectionMethod {
         get { (try? JSONDecoder().decode(ProblemSelectionMethod.self, from: problemSelectionMethodData)) ?? .uniform }
         set { problemSelectionMethodData = (try? JSONEncoder().encode(newValue)) ?? Data() }
     }
@@ -49,10 +49,14 @@ class StudyPlan {
     /// Apply this plan's selection rules and add the resulting problems to the user's Inbox.
     @MainActor
     func run(now: Date = .now) {
-        let selectedCourses = courseSelectionMethod.select(count: courseCountPerTrigger, from: courses)
+        print("problemCountPerTrigger: \(problemCountPerTrigger)")
+        let selectedCourses = courseSelectionMethod.select(count: problemCountPerTrigger, from: courses)
+        print("selectedCourses: \(selectedCourses.count)")
         for course in selectedCourses {
-            let problems = problemSelectionMethod.select(count: problemCountPerTrigger, from: course)
+            print("course: \(course.title)")
+            let problems = problemSelectionMethod.select(count: 1, from: course)
             for problem in problems {
+                print("problem: \(course.title):\(problem.id)")
                 problem.inInbox = true
             }
         }

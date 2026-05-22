@@ -116,16 +116,6 @@ struct StudyPlanView: View {
 
             Section("Selection") {
                 Stepper(
-                    "Courses per trigger: \(studyPlan.courseCountPerTrigger)",
-                    value: $studyPlan.courseCountPerTrigger,
-                    in: 1 ... max(1, studyPlan.courses.count)
-                )
-                Picker("Course selection", selection: $courseSelectionKind) {
-                    ForEach(CourseSelectionKind.allCases) { kind in
-                        Text(kind.label).tag(kind)
-                    }
-                }
-                Stepper(
                     "Problems per trigger: \(studyPlan.problemCountPerTrigger)",
                     value: $studyPlan.problemCountPerTrigger,
                     in: 1 ... 20
