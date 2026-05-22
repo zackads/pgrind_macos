@@ -59,6 +59,8 @@ struct RecordAttemptView: View {
                                 Spacer()
                             }
 
+                            askClaudeButton
+
                             TagsSection(problem: problem)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -266,6 +268,43 @@ struct RecordAttemptView: View {
             }
             .keyboardShortcut(.defaultAction)
         }
+    }
+}
+
+private extension RecordAttemptView {
+    var askClaudeButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                askClaude()
+            } label: {
+                Label("Ask Claude", systemImage: "sparkles")
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.large)
+            Spacer()
+        }
+    }
+
+    func askClaude() {
+        var sources: [Data] = []
+        if !problem.questionImage.isEmpty { sources.append(problem.questionImage) }
+        if let solution = problem.solutionImage { sources.append(solution) }
+        guard let merged = Screenshotter.mergeImagesVertically(from: sources) else { return }
+
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pgrind-ask-claude-\(UUID().uuidString)")
+            .appendingPathExtension("png")
+        do {
+            try merged.write(to: tempURL)
+        } catch {
+            return
+        }
+
+        let claudeURL = URL(fileURLWithPath: "/Applications/Claude.app")
+        let config = NSWorkspace.OpenConfiguration()
+        config.activates = true
+        NSWorkspace.shared.open([tempURL], withApplicationAt: claudeURL, configuration: config)
     }
 }
 
