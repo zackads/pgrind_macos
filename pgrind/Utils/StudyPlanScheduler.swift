@@ -40,6 +40,7 @@ final class StudyPlanScheduler {
 
         var didRunAny = false
         for plan in plans {
+            if plan.isPaused { continue }
             let referenceDate = plan.lastRunDate ?? plan.createdDate
             guard let nextFire = plan.schedule.nextFireDate(after: referenceDate),
                   nextFire <= now

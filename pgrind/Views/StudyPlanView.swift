@@ -151,9 +151,20 @@ struct StudyPlanView: View {
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                Button(
+                    studyPlan.isPaused ? "Resume" : "Pause",
+                    systemImage: studyPlan.isPaused ? "play.circle" : "pause.circle"
+                ) {
+                    studyPlan.isPaused.toggle()
+                    try? modelContext.save()
+                }
+                .help(studyPlan.isPaused ? "Resume this study plan" : "Pause this study plan")
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Button("Run", systemImage: "play.fill") {
                     runStudyPlan()
                 }
+                .disabled(studyPlan.isPaused)
                 .help("Run")
             }
         }

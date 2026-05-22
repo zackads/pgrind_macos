@@ -16,6 +16,7 @@ class StudyPlan {
     var courses: [Course]
     var createdDate: Date = Date()
     var lastRunDate: Date?
+    var isPaused: Bool = false
 
     /// How many Courses to select per trigger
     var courseCountPerTrigger: Int

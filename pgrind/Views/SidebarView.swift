@@ -165,6 +165,15 @@ struct SidebarView: View {
                 }
                 .tag(Home.SidebarItem.studyPlan(plan))
                 .contextMenu {
+                    Button {
+                        plan.isPaused.toggle()
+                        try? modelContext.save()
+                    } label: {
+                        Label(
+                            plan.isPaused ? "Resume" : "Pause",
+                            systemImage: plan.isPaused ? "play.circle" : "pause.circle"
+                        )
+                    }
                     Button(role: .destructive) {
                         studyPlanPendingDeletion = plan
                         showingDeleteStudyPlanConfirmation = true
@@ -225,8 +234,10 @@ struct SidebarView: View {
 
     private func studyPlanRow(_ plan: StudyPlan) -> some View {
         HStack {
-            Image(systemName: "calendar")
+            Image(systemName: plan.isPaused ? "pause.circle" : "calendar")
             Text(plan.name)
+                .italic(plan.isPaused)
+                .foregroundStyle(plan.isPaused ? AnyShapeStyle(.secondary) : AnyShapeStyle(.primary))
             Spacer()
         }
     }
