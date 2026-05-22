@@ -1,5 +1,50 @@
+import AppKit
 import SwiftData
 import SwiftUI
+
+private struct CoursePathControl: NSViewRepresentable {
+    let course: String
+    let problemSet: String
+    var onSelect: (Int) -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onSelect: onSelect)
+    }
+
+    func makeNSView(context: Context) -> NSPathControl {
+        let control = NSPathControl()
+        control.pathStyle = .standard
+        control.isEditable = false
+        control.backgroundColor = .clear
+        control.focusRingType = .none
+        control.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        control.target = context.coordinator
+        control.action = #selector(Coordinator.clicked(_:))
+        return control
+    }
+
+    func updateNSView(_ nsView: NSPathControl, context: Context) {
+        context.coordinator.onSelect = onSelect
+        let courseItem = NSPathControlItem()
+        courseItem.title = course
+        let setItem = NSPathControlItem()
+        setItem.title = problemSet
+        nsView.pathItems = [courseItem, setItem]
+    }
+
+    final class Coordinator: NSObject {
+        var onSelect: (Int) -> Void
+        init(onSelect: @escaping (Int) -> Void) {
+            self.onSelect = onSelect
+        }
+
+        @objc func clicked(_ sender: NSPathControl) {
+            guard let clicked = sender.clickedPathItem,
+                  let index = sender.pathItems.firstIndex(of: clicked) else { return }
+            onSelect(index)
+        }
+    }
+}
 
 struct RecordAttemptView: View {
     enum Tab: Hashable {
@@ -40,6 +85,13 @@ struct RecordAttemptView: View {
 
                     ScrollView {
                         VStack(spacing: 16) {
+                            CoursePathControl(
+                                course: problem.problemSet.course.title,
+                                problemSet: problem.problemSet.name,
+                                onSelect: { _ in path = [.viewCourse(problem.problemSet.course)] }
+                            )
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
                             replaceableImage(
                                 data: problem.solutionImage,
                                 missingLabel: "Missing solution image",
