@@ -52,8 +52,8 @@ struct InboxView: View {
         } message: { _ in
             Text(
                 "You learn by attempting problems, not skipping them. "
-                + "Removing it won't undo this decision — the problem stays "
-                + "in its problem set, but you won't see it here again."
+                    + "Removing it won't undo this decision — the problem stays "
+                    + "in its problem set, but you won't see it here again."
             )
         }
     }
