@@ -145,7 +145,7 @@ struct SidebarView: View {
             CreateCourseSheet()
         }
         .sheet(isPresented: $showingCreateStudyPlan) {
-            CreateStudyPlanSheet(courses: courses)
+            CreateStudyPlanSheet(topics: topics)
         }
     }
 

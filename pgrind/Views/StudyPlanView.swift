@@ -9,7 +9,7 @@ import SwiftUI
 struct StudyPlanView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var studyPlan: StudyPlan
-    @Query(sort: \Course.title) private var allCourses: [Course]
+    @Query(sort: \Topic.name) private var allTopics: [Topic]
 
     @State private var scheduleKind: ScheduleKind = .daily
     @State private var weekday: StudySchedule.Weekday = .monday
@@ -66,60 +66,23 @@ struct StudyPlanView: View {
         }
     }
 
-    /// Distinct topics among the available courses, in stable order.
-    private var topics: [Topic] {
-        var seen = Set<PersistentIdentifier>()
-        var result: [Topic] = []
-        for course in allCourses {
-            if let topic = course.topic, !seen.contains(topic.persistentModelID) {
-                seen.insert(topic.persistentModelID)
-                result.append(topic)
-            }
-        }
-        return result
+    private func isSelected(_ topic: Topic) -> Bool {
+        studyPlan.topics.contains { $0.persistentModelID == topic.persistentModelID }
     }
 
-    private func courses(in topic: Topic) -> [Course] {
-        allCourses.filter { $0.topic?.persistentModelID == topic.persistentModelID }
-    }
-
-    private var ungroupedCourses: [Course] {
-        allCourses.filter { $0.topic == nil }
-    }
-
-    private func isSelected(_ course: Course) -> Bool {
-        studyPlan.courses.contains { $0.persistentModelID == course.persistentModelID }
-    }
-
-    private func setSelected(_ course: Course, _ isOn: Bool) {
+    private func setSelected(_ topic: Topic, _ isOn: Bool) {
         if isOn {
-            if !isSelected(course) { studyPlan.courses.append(course) }
+            if !isSelected(topic) { studyPlan.topics.append(topic) }
         } else {
-            studyPlan.courses.removeAll { $0.persistentModelID == course.persistentModelID }
+            studyPlan.topics.removeAll { $0.persistentModelID == topic.persistentModelID }
         }
     }
 
-    private func courseToggle(_ course: Course) -> some View {
-        Toggle(course.title, isOn: Binding(
-            get: { isSelected(course) },
-            set: { setSelected(course, $0) }
+    private func topicToggle(_ topic: Topic) -> some View {
+        Toggle(topic.name, isOn: Binding(
+            get: { isSelected(topic) },
+            set: { setSelected(topic, $0) }
         ))
-    }
-
-    /// A "select all" toggle for a topic — snapshot semantics: on when every course
-    /// currently in the topic is selected; toggling adds/removes them all.
-    private func topicSelectionBinding(_ topic: Topic) -> Binding<Bool> {
-        Binding(
-            get: {
-                let inTopic = courses(in: topic)
-                return !inTopic.isEmpty && inTopic.allSatisfy { isSelected($0) }
-            },
-            set: { isOn in
-                for course in courses(in: topic) {
-                    setSelected(course, isOn)
-                }
-            }
-        )
     }
 
     var body: some View {
@@ -144,22 +107,13 @@ struct StudyPlanView: View {
                 DatePicker("Time", selection: $timeOfDay, displayedComponents: .hourAndMinute)
             }
 
-            Section("Courses") {
-                if allCourses.isEmpty {
-                    Text("No courses available")
+            Section("Topics") {
+                if allTopics.isEmpty {
+                    Text("No topics available")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(topics) { topic in
-                        Toggle(isOn: topicSelectionBinding(topic)) {
-                            Text(topic.name).fontWeight(.semibold)
-                        }
-                        ForEach(courses(in: topic)) { course in
-                            courseToggle(course)
-                                .padding(.leading, 16)
-                        }
-                    }
-                    ForEach(ungroupedCourses) { course in
-                        courseToggle(course)
+                    ForEach(allTopics) { topic in
+                        topicToggle(topic)
                     }
                 }
             }

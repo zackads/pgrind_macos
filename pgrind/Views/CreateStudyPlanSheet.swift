@@ -10,14 +10,14 @@ struct CreateStudyPlanSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
-    let courses: [Course]
+    let topics: [Topic]
 
     @State private var name: String = ""
     @State private var scheduleKind: ScheduleKind = .daily
     @State private var weekday: StudySchedule.Weekday = .monday
     @State private var timeOfDay: Date = Calendar.current
         .date(bySettingHour: 6, minute: 0, second: 0, of: Date()) ?? Date()
-    @State private var selectedCourseIDs: Set<PersistentIdentifier> = []
+    @State private var selectedTopicIDs: Set<PersistentIdentifier> = []
     @State private var courseCountPerTrigger: Int = 1
     @State private var problemsPerTrigger: Int = 3
     @State private var courseSelectionMethod: CourseSelectionMethod = .uniformRandom
@@ -67,58 +67,17 @@ struct CreateStudyPlanSheet: View {
         }
     }
 
-    /// Distinct topics among the available courses, in stable order.
-    private var topics: [Topic] {
-        var seen = Set<PersistentIdentifier>()
-        var result: [Topic] = []
-        for course in courses {
-            if let topic = course.topic, !seen.contains(topic.persistentModelID) {
-                seen.insert(topic.persistentModelID)
-                result.append(topic)
-            }
-        }
-        return result
-    }
-
-    private func courses(in topic: Topic) -> [Course] {
-        courses.filter { $0.topic?.persistentModelID == topic.persistentModelID }
-    }
-
-    private var ungroupedCourses: [Course] {
-        courses.filter { $0.topic == nil }
-    }
-
-    private func courseToggle(_ course: Course) -> some View {
-        Toggle(course.title, isOn: Binding(
-            get: { selectedCourseIDs.contains(course.persistentModelID) },
+    private func topicToggle(_ topic: Topic) -> some View {
+        Toggle(topic.name, isOn: Binding(
+            get: { selectedTopicIDs.contains(topic.persistentModelID) },
             set: { isOn in
                 if isOn {
-                    selectedCourseIDs.insert(course.persistentModelID)
+                    selectedTopicIDs.insert(topic.persistentModelID)
                 } else {
-                    selectedCourseIDs.remove(course.persistentModelID)
+                    selectedTopicIDs.remove(topic.persistentModelID)
                 }
             }
         ))
-    }
-
-    /// A "select all" toggle for a topic — snapshot semantics: on when every course
-    /// currently in the topic is selected; toggling adds/removes them all.
-    private func topicSelectionBinding(_ topic: Topic) -> Binding<Bool> {
-        Binding(
-            get: {
-                let ids = courses(in: topic).map(\.persistentModelID)
-                return !ids.isEmpty && ids.allSatisfy { selectedCourseIDs.contains($0) }
-            },
-            set: { isOn in
-                for id in courses(in: topic).map(\.persistentModelID) {
-                    if isOn {
-                        selectedCourseIDs.insert(id)
-                    } else {
-                        selectedCourseIDs.remove(id)
-                    }
-                }
-            }
-        )
     }
 
     var body: some View {
@@ -146,28 +105,19 @@ struct CreateStudyPlanSheet: View {
                     DatePicker("Time", selection: $timeOfDay, displayedComponents: .hourAndMinute)
                 }
 
-                Section("Courses") {
-                    if courses.isEmpty {
-                        Text("No courses available. Create a course first.")
+                Section("Topics") {
+                    if topics.isEmpty {
+                        Text("No topics available. Create a topic first.")
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(topics) { topic in
-                            Toggle(isOn: topicSelectionBinding(topic)) {
-                                Text(topic.name).fontWeight(.semibold)
-                            }
-                            ForEach(courses(in: topic)) { course in
-                                courseToggle(course)
-                                    .padding(.leading, 16)
-                            }
-                        }
-                        ForEach(ungroupedCourses) { course in
-                            courseToggle(course)
+                            topicToggle(topic)
                         }
                     }
                 }
                 .onAppear {
-                    if selectedCourseIDs.isEmpty {
-                        selectedCourseIDs = Set(courses.map(\.persistentModelID))
+                    if selectedTopicIDs.isEmpty {
+                        selectedTopicIDs = Set(topics.map(\.persistentModelID))
                     }
                 }
 
@@ -232,7 +182,7 @@ struct CreateStudyPlanSheet: View {
                         case .weekly: return .weekly(weekday: weekday, hour: hour, minute: minute)
                         }
                     }()
-                    let selectedCourses = courses.filter { selectedCourseIDs.contains($0.persistentModelID) }
+                    let selectedTopics = topics.filter { selectedTopicIDs.contains($0.persistentModelID) }
                     let problemSelectionMethod: ProblemSelectionMethod = {
                         switch problemSelectionKind {
                         case .uniform: return .uniform
@@ -243,7 +193,7 @@ struct CreateStudyPlanSheet: View {
                     }()
                     let plan = StudyPlan(
                         name: name,
-                        courses: selectedCourses,
+                        topics: selectedTopics,
                         schedule: schedule,
                         courseCountPerTrigger: problemsPerTrigger,
                         courseSelectionMethod: .uniformRandom,

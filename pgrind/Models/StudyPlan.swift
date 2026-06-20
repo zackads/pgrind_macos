@@ -12,8 +12,8 @@ import SwiftData
 class StudyPlan {
     /// e.g. sdf 'The Daily Q'
     var name: String
-    /// The Courses from which Problems should be selected at the point of triggering
-    var courses: [Course]
+    /// The Topics from which Problems should be selected at the point of triggering
+    var topics: [Topic]
     var createdDate: Date = Date()
     var lastRunDate: Date?
     var isPaused: Bool = false
@@ -48,16 +48,17 @@ class StudyPlan {
     }
 
     /// Apply this plan's selection rules and add the resulting problems to the user's Inbox.
+    ///
+    /// For each problem to select, a random `Topic` is drawn from the plan's topics, then a
+    /// random `Course` from that topic's courses, then a problem from that course via
+    /// `problemSelectionMethod`.
     @MainActor
     func run(now: Date = .now) {
-        print("problemCountPerTrigger: \(problemCountPerTrigger)")
-        let selectedCourses = courseSelectionMethod.select(count: problemCountPerTrigger, from: courses)
-        print("selectedCourses: \(selectedCourses.count)")
-        for course in selectedCourses {
-            print("course: \(course.title)")
-            let problems = problemSelectionMethod.select(count: 1, from: course)
-            for problem in problems {
-                print("problem: \(course.title):\(problem.id)")
+        for _ in 0 ..< max(problemCountPerTrigger, 1) {
+            guard let topic = topics.randomElement(),
+                  let course = topic.courses.randomElement()
+            else { continue }
+            for problem in problemSelectionMethod.select(count: 1, from: course) {
                 problem.inInbox = true
             }
         }
@@ -66,7 +67,7 @@ class StudyPlan {
 
     init(
         name: String,
-        courses: [Course],
+        topics: [Topic],
         schedule: StudySchedule,
         courseCountPerTrigger: Int,
         courseSelectionMethod: CourseSelectionMethod,
@@ -74,7 +75,7 @@ class StudyPlan {
         problemSelectionMethod: ProblemSelectionMethod
     ) {
         self.name = name
-        self.courses = courses
+        self.topics = topics
         self.courseCountPerTrigger = courseCountPerTrigger
         problemCountPerTrigger = problemsPerCourse
         scheduleData = (try? JSONEncoder().encode(schedule)) ?? Data()

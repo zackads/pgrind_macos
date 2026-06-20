@@ -37,10 +37,12 @@ New `.swift` files must be added to the Xcode target in `project.pbxproj` — cr
 
 ### Persistence (SwiftData)
 
-The model container is constructed in `pgrind/pgrindApp.swift` and shared across all `WindowGroup`s via `.modelContainer(sharedModelContainer)`. Storage is on-disk and uses a versioned migration plan.
+The model container is constructed in `pgrind/pgrindApp.swift` and shared across all `WindowGroup`s via `.modelContainer(sharedModelContainer)`. Storage is on-disk and goes through `MigrationPlan` (`Migrations/PgrindMigrationPlan.swift`).
 
-- `Migrations/PgrindMigrationPlan.swift` lists schema versions and stages. When the persistent model graph changes, **add a new `SchemaVN`** under `Migrations/` and append a `MigrationStage` (lightweight when possible). Do not edit historical schema enums.
-- The `schema:` array in `pgrindApp.swift` and the `models:` list in the latest `SchemaVN.swift` should be kept in sync. Note: `Deck` was added recently but is not yet listed in either — adding a new persistent type requires updating both plus a new schema version.
+- **Staged migrations don't currently work in this repo.** The `SchemaVN` enums under `Migrations/` reference the *live* model classes (e.g. `StudyPlan.self`), not frozen historical copies. So when a `@Model` changes shape, every `SchemaVN` that lists it changes too — they all describe the same new shape. Adding a second versioned schema + a `MigrationStage` therefore crashes at launch with `NSInvalidArgumentException: 'Duplicate version checksums detected'`, because the versions hash identically.
+- **For now, keep a single schema** (`schemas: [SchemaV1]`, `stages: []`, app builds `Schema(versionedSchema: SchemaV1.self)`) and let SwiftData's **automatic lightweight migration** absorb additive and relationship changes. Verified on 2026-06-20 swapping `StudyPlan.courses: [Course]` → `topics: [Topic]`: it migrates cleanly but drops the changed relationship's existing rows (acceptable for dev data).
+- Enabling true staged migrations would first require freezing each historical model as a nested type inside its `SchemaVN` (the canonical SwiftData pattern) — a repo-wide refactor that has never been done. Until then, do **not** add `SchemaV2`/`MigrationStage`.
+- Keep the `models:` list in `SchemaV1.swift` in sync with the persistent types. Note: `Deck` was added recently but is not yet listed — adding a new persistent type still requires updating that list.
 
 ### Domain model
 
