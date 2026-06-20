@@ -5,8 +5,10 @@
 //  Created by Zack Adlington on 15/05/2026.
 //
 
+import AppKit
 import SwiftData
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct CourseView: View {
     @Binding var path: [Home.Route]
@@ -19,6 +21,9 @@ struct CourseView: View {
     @State private var deletingProblemSet: ProblemSet?
     @State private var addingProblemTo: ProblemSet?
     @State private var collapsedProblemSets: Set<PersistentIdentifier> = []
+    @State private var fileImportError: String?
+    @State private var isDropTargeted: Bool = false
+    @State private var filesExpanded: Bool = true
 
     private var isRenaming: Binding<Bool> {
         Binding(
@@ -89,12 +94,72 @@ struct CourseView: View {
         deletingProblemSet = nil
     }
 
+    private func importFiles(from urls: [URL]) {
+        for url in urls {
+            do {
+                _ = try CourseFileStore.importFile(at: url, into: course, in: modelContext)
+            } catch {
+                fileImportError = error.localizedDescription
+                return
+            }
+        }
+    }
+
+    private func pickFiles() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = true
+        panel.prompt = "Add"
+        panel.message = "Choose files to attach to this course."
+        guard panel.runModal() == .OK else { return }
+        importFiles(from: panel.urls)
+    }
+
+    @ViewBuilder
+    private func fileRow(_ file: CourseFile) -> some View {
+        let url = CourseFileStore.url(for: file)
+        let icon = NSWorkspace.shared.icon(forFile: url.path)
+        HStack(spacing: 8) {
+            Image(nsImage: icon)
+                .resizable()
+                .frame(width: 20, height: 20)
+            Text(file.displayName)
+            Spacer()
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            CourseFileStore.open(file)
+        }
+        .contextMenu {
+            Button("Open") { CourseFileStore.open(file) }
+            Button("Remove", role: .destructive) {
+                try? CourseFileStore.delete(file, in: modelContext)
+            }
+        }
+    }
+
     var body: some View {
         List {
             Section {
                 CourseHeatmap(problems: course.problems) { problem in
                     path.append(.recordAttempt(problem))
                 }
+            }
+            DisclosureGroup(isExpanded: $filesExpanded) {
+                ForEach(course.files) { file in
+                    fileRow(file)
+                }
+                FileDropTarget(isHighlighted: isDropTargeted) {
+                    pickFiles()
+                }
+                .dropDestination(for: URL.self) { urls, _ in
+                    importFiles(from: urls)
+                    return !urls.isEmpty
+                } isTargeted: { isDropTargeted = $0 }
+            } label: {
+                Text("Files")
+                    .font(.title3)
             }
             ForEach(course.problemSets) { problemSet in
                 row(for: problemSet)
@@ -127,6 +192,13 @@ struct CourseView: View {
             }
             .keyboardShortcut("n", modifiers: [.command])
             .labelStyle(.titleAndIcon)
+
+            Button {
+                pickFiles()
+            } label: {
+                Label("Add file", systemImage: "doc.badge.plus")
+            }
+            .labelStyle(.titleAndIcon)
         }
         .sheet(isPresented: $showingAddProblemSet) {
             AddProblemSetView(course: course)
@@ -147,6 +219,52 @@ struct CourseView: View {
             Button("Delete", role: .destructive, action: confirmDelete)
             Button("Cancel", role: .cancel) { deletingProblemSet = nil }
         }
+        .alert("Couldn't add file", isPresented: Binding(
+            get: { fileImportError != nil },
+            set: { if !$0 { fileImportError = nil } }
+        )) {
+            Button("OK", role: .cancel) { fileImportError = nil }
+        } message: {
+            Text(fileImportError ?? "")
+        }
+    }
+}
+
+private struct FileDropTarget: View {
+    let isHighlighted: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.down.doc")
+                    .font(.title3)
+                Text("Drop files here or click to add")
+                    .font(.callout)
+                Spacer()
+            }
+            .foregroundStyle(isHighlighted ? Color.accentColor : Color.secondary)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 12)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isHighlighted ? Color.accentColor.opacity(0.08) : Color.clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(
+                        isHighlighted ? Color.accentColor : Color.secondary.opacity(0.5),
+                        style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])
+                    )
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .listRowInsets(EdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8))
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .animation(.easeOut(duration: 0.12), value: isHighlighted)
     }
 }
 

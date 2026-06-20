@@ -13,6 +13,7 @@ struct Progress {
 
 @Model
 final class Course {
+    var folderID: UUID?
     var title: String // e.g. "18.100A | Real Analysis | Fall 2020"
     var summary: String
     var hyperlink: String // e.g. https://ocw.mit.edu/courses/18-100a-real-analysis-fall-2020/
@@ -20,6 +21,9 @@ final class Course {
 
     @Relationship(deleteRule: .cascade, inverse: \ProblemSet.course)
     var problemSets: [ProblemSet] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \CourseFile.course)
+    var files: [CourseFile] = []
 
     var problems: [ImageProblem] {
         return problemSets.flatMap(\.problems)
@@ -29,6 +33,14 @@ final class Course {
         self.title = title
         self.summary = summary
         self.hyperlink = hyperlink
+        folderID = UUID()
+    }
+
+    func ensureFolderID() -> UUID {
+        if let folderID { return folderID }
+        let new = UUID()
+        folderID = new
+        return new
     }
 
     /// Aggregate progress across every problem in the course.
