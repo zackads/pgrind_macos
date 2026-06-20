@@ -11,6 +11,7 @@ import SwiftUI
 struct SidebarView: View {
     @Binding var selectedSidebarItem: Home.SidebarItem?
     let courses: [Course]
+    let topics: [Topic]
     let studyPlans: [StudyPlan]
     let inboxCount: Int
     @Environment(\.modelContext) private var modelContext
@@ -23,10 +24,31 @@ struct SidebarView: View {
     @State private var studyPlanPendingDeletion: StudyPlan?
     @State private var showingDeleteStudyPlanConfirmation = false
 
+    // Topic management
+    @State private var topicPendingDeletion: Topic?
+    @State private var showingDeleteTopicConfirmation = false
+    @State private var renamingTopic: Topic?
+    @State private var renameTopicText: String = ""
+    @State private var showingCreateTopic = false
+    @State private var newTopicName: String = ""
+    /// When a topic is created via a course's "New Topic…" menu, assign it to this course on creation.
+    @State private var courseAwaitingNewTopic: Course?
+
+    private var ungroupedCourses: [Course] {
+        courses.filter { $0.topic == nil }
+    }
+
+    private func courses(in topic: Topic) -> [Course] {
+        courses.filter { $0.topic?.persistentModelID == topic.persistentModelID }
+    }
+
     var body: some View {
         List(selection: $selectedSidebarItem) {
             inboxSection
             historySection
+            ForEach(topics) { topic in
+                topicSection(topic)
+            }
             coursesSection
             studyPlansSection
         }
@@ -67,6 +89,58 @@ struct SidebarView: View {
         } message: { plan in
             Text("This will permanently delete the study plan \"\(plan.name)\". This action cannot be undone.")
         }
+        .confirmationDialog(
+            "Delete this topic?",
+            isPresented: $showingDeleteTopicConfirmation,
+            titleVisibility: .visible,
+            presenting: topicPendingDeletion
+        ) { topic in
+            Button("Delete \"\(topic.name)\"", role: .destructive) {
+                modelContext.delete(topic)
+                try? modelContext.save()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { topic in
+            Text(
+                "This will delete the topic \"\(topic.name)\". Its courses will not be deleted — " +
+                    "they'll become ungrouped."
+            )
+        }
+        .alert("Rename Topic", isPresented: Binding(
+            get: { renamingTopic != nil },
+            set: { if !$0 { renamingTopic = nil } }
+        )) {
+            TextField("Name", text: $renameTopicText)
+            Button("Cancel", role: .cancel) { renamingTopic = nil }
+            Button("Rename") {
+                let trimmed = renameTopicText.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let topic = renamingTopic, !trimmed.isEmpty {
+                    topic.name = trimmed
+                    try? modelContext.save()
+                }
+                renamingTopic = nil
+            }
+        }
+        .alert("New Topic", isPresented: $showingCreateTopic) {
+            TextField("Name", text: $newTopicName)
+            Button("Cancel", role: .cancel) {
+                newTopicName = ""
+                courseAwaitingNewTopic = nil
+            }
+            Button("Create") {
+                let trimmed = newTopicName.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    let topic = Topic(name: trimmed)
+                    modelContext.insert(topic)
+                    if let course = courseAwaitingNewTopic {
+                        course.topic = topic
+                    }
+                    try? modelContext.save()
+                }
+                newTopicName = ""
+                courseAwaitingNewTopic = nil
+            }
+        }
         .sheet(isPresented: $showingCreateCourse) {
             CreateCourseSheet()
         }
@@ -75,7 +149,118 @@ struct SidebarView: View {
         }
     }
 
-    private var inboxSection: some View {
+    private func topicSection(_ topic: Topic) -> some View {
+        Section {
+            ForEach(courses(in: topic)) { course in
+                courseEntry(course)
+            }
+        } header: {
+            HStack {
+                Text(topic.name)
+                Spacer()
+            }
+            .padding(.trailing, 8)
+            .contentShape(Rectangle())
+            .contextMenu {
+                Button("Rename") {
+                    renameTopicText = topic.name
+                    renamingTopic = topic
+                }
+                Button(role: .destructive) {
+                    topicPendingDeletion = topic
+                    showingDeleteTopicConfirmation = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+        }
+    }
+
+    private var coursesSection: some View {
+        Section {
+            ForEach(ungroupedCourses) { course in
+                courseEntry(course)
+            }
+            .onDeleteCommand {
+                if case let .course(course) = selectedSidebarItem {
+                    modelContext.delete(course)
+                    selectedSidebarItem = nil
+                    try? modelContext.save()
+                }
+            }
+        } header: {
+            coursesSectionHeader
+        }
+    }
+
+    private func courseEntry(_ course: Course) -> some View {
+        HStack {
+            courseRow(course)
+        }
+        .tag(Home.SidebarItem.course(course))
+        .contextMenu {
+            Menu("Move to Topic") {
+                ForEach(topics) { topic in
+                    Button(topic.name) {
+                        course.topic = topic
+                        try? modelContext.save()
+                    }
+                }
+                Divider()
+                Button("New Topic…") {
+                    courseAwaitingNewTopic = course
+                    newTopicName = ""
+                    showingCreateTopic = true
+                }
+                if course.topic != nil {
+                    Divider()
+                    Button("Remove from Topic") {
+                        course.topic = nil
+                        try? modelContext.save()
+                    }
+                }
+            }
+            Button(role: .destructive) {
+                coursePendingDeletion = course
+                showingDeleteConfirmation = true
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+    }
+
+    private var coursesSectionHeader: some View {
+        HStack {
+            Text("Courses")
+            Spacer()
+            Menu {
+                Button("New Course") { showingCreateCourse = true }
+                Button("New Topic…") {
+                    courseAwaitingNewTopic = nil
+                    newTopicName = ""
+                    showingCreateTopic = true
+                }
+            } label: {
+                Image(systemName: "plus")
+                    .frame(width: 20, height: 20)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help("Add a course or topic")
+            .opacity(isHoveringCoursesHeader ? 1 : 0)
+            .allowsHitTesting(isHoveringCoursesHeader)
+        }
+        .padding(.trailing, 8)
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            isHoveringCoursesHeader = hovering
+        }
+    }
+}
+
+extension SidebarView {
+    var inboxSection: some View {
         Section {
             HStack(spacing: 8) {
                 Image(systemName: "tray.full")
@@ -106,7 +291,7 @@ struct SidebarView: View {
         }
     }
 
-    private var historySection: some View {
+    var historySection: some View {
         Section {
             HStack(spacing: 8) {
                 Image(systemName: "clock.arrow.circlepath")
@@ -124,40 +309,7 @@ struct SidebarView: View {
         }
     }
 
-    private var coursesSection: some View {
-        Section {
-            ForEach(courses) { course in
-                HStack {
-                    courseRow(course)
-                }
-                .tag(Home.SidebarItem.course(course))
-                .contextMenu {
-                    Button(role: .destructive) {
-                        coursePendingDeletion = course
-                        showingDeleteConfirmation = true
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                }
-            }
-            .onDeleteCommand {
-                if case let .course(course) = selectedSidebarItem {
-                    modelContext.delete(course)
-                    selectedSidebarItem = nil
-                    try? modelContext.save()
-                }
-            }
-        } header: {
-            sectionHeader(
-                title: "Courses",
-                help: "Add a new course",
-                isHovering: $isHoveringCoursesHeader,
-                onAdd: { showingCreateCourse = true }
-            )
-        }
-    }
-
-    private var studyPlansSection: some View {
+    var studyPlansSection: some View {
         Section {
             ForEach(studyPlans) { plan in
                 HStack {
@@ -199,7 +351,7 @@ struct SidebarView: View {
         }
     }
 
-    private func sectionHeader(
+    func sectionHeader(
         title: String,
         help: String,
         isHovering: Binding<Bool>,
@@ -224,15 +376,15 @@ struct SidebarView: View {
         }
     }
 
-    private func courseRow(_ course: Course) -> some View {
-        return HStack {
+    func courseRow(_ course: Course) -> some View {
+        HStack {
             Text(course.title)
             Spacer()
             Pill(text: "\(Int(course.progress.proportionAttempted * 100))%")
         }
     }
 
-    private func studyPlanRow(_ plan: StudyPlan) -> some View {
+    func studyPlanRow(_ plan: StudyPlan) -> some View {
         HStack {
             Image(systemName: plan.isPaused ? "pause.circle" : "calendar")
             Text(plan.name)

@@ -20,6 +20,7 @@ struct Home: View {
         order: .forward
     ) private var inboxProblems: [ImageProblem]
     @Query(sort: \StudyPlan.createdDate, order: .forward) private var studyPlans: [StudyPlan]
+    @Query(sort: \Topic.createdDate, order: .forward) private var topics: [Topic]
 
     @State private var path: [Route] = []
 
@@ -43,6 +44,7 @@ struct Home: View {
             SidebarView(
                 selectedSidebarItem: $selectedSidebarItem,
                 courses: courses,
+                topics: topics,
                 studyPlans: studyPlans,
                 inboxCount: inboxProblems.count
             )

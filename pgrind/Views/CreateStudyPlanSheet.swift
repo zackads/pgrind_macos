@@ -67,6 +67,60 @@ struct CreateStudyPlanSheet: View {
         }
     }
 
+    /// Distinct topics among the available courses, in stable order.
+    private var topics: [Topic] {
+        var seen = Set<PersistentIdentifier>()
+        var result: [Topic] = []
+        for course in courses {
+            if let topic = course.topic, !seen.contains(topic.persistentModelID) {
+                seen.insert(topic.persistentModelID)
+                result.append(topic)
+            }
+        }
+        return result
+    }
+
+    private func courses(in topic: Topic) -> [Course] {
+        courses.filter { $0.topic?.persistentModelID == topic.persistentModelID }
+    }
+
+    private var ungroupedCourses: [Course] {
+        courses.filter { $0.topic == nil }
+    }
+
+    private func courseToggle(_ course: Course) -> some View {
+        Toggle(course.title, isOn: Binding(
+            get: { selectedCourseIDs.contains(course.persistentModelID) },
+            set: { isOn in
+                if isOn {
+                    selectedCourseIDs.insert(course.persistentModelID)
+                } else {
+                    selectedCourseIDs.remove(course.persistentModelID)
+                }
+            }
+        ))
+    }
+
+    /// A "select all" toggle for a topic — snapshot semantics: on when every course
+    /// currently in the topic is selected; toggling adds/removes them all.
+    private func topicSelectionBinding(_ topic: Topic) -> Binding<Bool> {
+        Binding(
+            get: {
+                let ids = courses(in: topic).map(\.persistentModelID)
+                return !ids.isEmpty && ids.allSatisfy { selectedCourseIDs.contains($0) }
+            },
+            set: { isOn in
+                for id in courses(in: topic).map(\.persistentModelID) {
+                    if isOn {
+                        selectedCourseIDs.insert(id)
+                    } else {
+                        selectedCourseIDs.remove(id)
+                    }
+                }
+            }
+        )
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Form {
@@ -97,17 +151,17 @@ struct CreateStudyPlanSheet: View {
                         Text("No courses available. Create a course first.")
                             .foregroundStyle(.secondary)
                     } else {
-                        ForEach(courses) { course in
-                            Toggle(course.title, isOn: Binding(
-                                get: { selectedCourseIDs.contains(course.persistentModelID) },
-                                set: { isOn in
-                                    if isOn {
-                                        selectedCourseIDs.insert(course.persistentModelID)
-                                    } else {
-                                        selectedCourseIDs.remove(course.persistentModelID)
-                                    }
-                                }
-                            ))
+                        ForEach(topics) { topic in
+                            Toggle(isOn: topicSelectionBinding(topic)) {
+                                Text(topic.name).fontWeight(.semibold)
+                            }
+                            ForEach(courses(in: topic)) { course in
+                                courseToggle(course)
+                                    .padding(.leading, 16)
+                            }
+                        }
+                        ForEach(ungroupedCourses) { course in
+                            courseToggle(course)
                         }
                     }
                 }

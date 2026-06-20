@@ -19,6 +19,9 @@ final class Course {
     var hyperlink: String // e.g. https://ocw.mit.edu/courses/18-100a-real-analysis-fall-2020/
     var createdDate: Date = Date()
 
+    /// The Topic this course belongs to, if any. `nil` means ungrouped.
+    var topic: Topic?
+
     @Relationship(deleteRule: .cascade, inverse: \ProblemSet.course)
     var problemSets: [ProblemSet] = []
 

@@ -12,9 +12,14 @@ struct CreateCourseSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    @Query(sort: \Topic.createdDate, order: .forward) private var topics: [Topic]
+
     @State private var title: String = ""
     @State private var summary: String = ""
     @State private var hyperlink: String = ""
+    @State private var selectedTopic: Topic?
+    @State private var showingCreateTopic = false
+    @State private var newTopicName: String = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -45,8 +50,32 @@ struct CreateCourseSheet: View {
                 ) {
                     Text("Website URL (optional)")
                 }
+                Picker("Topic (optional)", selection: $selectedTopic) {
+                    Text("None").tag(Topic?.none)
+                    ForEach(topics) { topic in
+                        Text(topic.name).tag(Topic?.some(topic))
+                    }
+                }
+                Button("New Topic…") {
+                    newTopicName = ""
+                    showingCreateTopic = true
+                }
             }
             .formStyle(.grouped)
+            .alert("New Topic", isPresented: $showingCreateTopic) {
+                TextField("Name", text: $newTopicName)
+                Button("Cancel", role: .cancel) { newTopicName = "" }
+                Button("Create") {
+                    let trimmed = newTopicName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !trimmed.isEmpty {
+                        let topic = Topic(name: trimmed)
+                        modelContext.insert(topic)
+                        try? modelContext.save()
+                        selectedTopic = topic
+                    }
+                    newTopicName = ""
+                }
+            }
 
             HStack {
                 Spacer()
@@ -60,6 +89,7 @@ struct CreateCourseSheet: View {
                         summary: summary,
                         hyperlink: hyperlink
                     )
+                    newCourse.topic = selectedTopic
                     modelContext.insert(newCourse)
                     try? modelContext.save()
                     dismiss()

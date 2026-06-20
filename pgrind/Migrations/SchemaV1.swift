@@ -16,7 +16,8 @@ enum SchemaV1: VersionedSchema {
             Attempt.self,
             ScreenshotItem.self,
             StudyPlan.self,
-            CourseFile.self
+            CourseFile.self,
+            Topic.self
         ]
     }
 }

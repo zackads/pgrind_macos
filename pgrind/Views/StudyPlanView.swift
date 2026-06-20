@@ -66,6 +66,62 @@ struct StudyPlanView: View {
         }
     }
 
+    /// Distinct topics among the available courses, in stable order.
+    private var topics: [Topic] {
+        var seen = Set<PersistentIdentifier>()
+        var result: [Topic] = []
+        for course in allCourses {
+            if let topic = course.topic, !seen.contains(topic.persistentModelID) {
+                seen.insert(topic.persistentModelID)
+                result.append(topic)
+            }
+        }
+        return result
+    }
+
+    private func courses(in topic: Topic) -> [Course] {
+        allCourses.filter { $0.topic?.persistentModelID == topic.persistentModelID }
+    }
+
+    private var ungroupedCourses: [Course] {
+        allCourses.filter { $0.topic == nil }
+    }
+
+    private func isSelected(_ course: Course) -> Bool {
+        studyPlan.courses.contains { $0.persistentModelID == course.persistentModelID }
+    }
+
+    private func setSelected(_ course: Course, _ isOn: Bool) {
+        if isOn {
+            if !isSelected(course) { studyPlan.courses.append(course) }
+        } else {
+            studyPlan.courses.removeAll { $0.persistentModelID == course.persistentModelID }
+        }
+    }
+
+    private func courseToggle(_ course: Course) -> some View {
+        Toggle(course.title, isOn: Binding(
+            get: { isSelected(course) },
+            set: { setSelected(course, $0) }
+        ))
+    }
+
+    /// A "select all" toggle for a topic — snapshot semantics: on when every course
+    /// currently in the topic is selected; toggling adds/removes them all.
+    private func topicSelectionBinding(_ topic: Topic) -> Binding<Bool> {
+        Binding(
+            get: {
+                let inTopic = courses(in: topic)
+                return !inTopic.isEmpty && inTopic.allSatisfy { isSelected($0) }
+            },
+            set: { isOn in
+                for course in courses(in: topic) {
+                    setSelected(course, isOn)
+                }
+            }
+        )
+    }
+
     var body: some View {
         Form {
             Section {
@@ -93,23 +149,17 @@ struct StudyPlanView: View {
                     Text("No courses available")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(allCourses) { course in
-                        Toggle(course.title, isOn: Binding(
-                            get: {
-                                studyPlan.courses
-                                    .contains(where: { $0.persistentModelID == course.persistentModelID })
-                            },
-                            set: { isOn in
-                                if isOn {
-                                    if !studyPlan.courses
-                                        .contains(where: { $0.persistentModelID == course.persistentModelID }) {
-                                        studyPlan.courses.append(course)
-                                    }
-                                } else {
-                                    studyPlan.courses.removeAll { $0.persistentModelID == course.persistentModelID }
-                                }
-                            }
-                        ))
+                    ForEach(topics) { topic in
+                        Toggle(isOn: topicSelectionBinding(topic)) {
+                            Text(topic.name).fontWeight(.semibold)
+                        }
+                        ForEach(courses(in: topic)) { course in
+                            courseToggle(course)
+                                .padding(.leading, 16)
+                        }
+                    }
+                    ForEach(ungroupedCourses) { course in
+                        courseToggle(course)
                     }
                 }
             }
@@ -186,8 +236,10 @@ struct StudyPlanView: View {
             try? modelContext.save()
         }
     }
+}
 
-    private func loadFromModel() {
+extension StudyPlanView {
+    func loadFromModel() {
         switch studyPlan.schedule {
         case let .daily(hour, minute):
             scheduleKind = .daily
@@ -219,7 +271,7 @@ struct StudyPlanView: View {
         }
     }
 
-    private func writeSchedule() {
+    func writeSchedule() {
         let components = Calendar.current.dateComponents([.hour, .minute], from: timeOfDay)
         let hour = components.hour ?? 0
         let minute = components.minute ?? 0
