@@ -33,6 +33,10 @@ After each change, build, run tests and run the project to make sure it compiles
 
 New `.swift` files must be added to the Xcode target in `project.pbxproj` — creating a file on disk alone won't compile it.
 
+## Workflow
+
+Work directly on the `main` branch — this is preferred. Commit and push to `main` rather than creating feature branches, unless explicitly asked otherwise.
+
 ## Architecture
 
 ### Persistence (SwiftData)
